@@ -3,6 +3,7 @@ import {
     ExecutionContext,
     HttpException,
     HttpStatus,
+    Injectable,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { RequestUser } from '../dto/request-user.dto';
@@ -11,6 +12,7 @@ import { UserRole } from '../dto/user-role.dto';
 import { ROLES_KEY } from '../decorator/roles.decorator';
 import { Reflector } from '@nestjs/core';
 
+@Injectable()
 export class JwtGuard implements CanActivate {
     constructor(
         private readonly jwtService: JwtService,
@@ -22,7 +24,6 @@ export class JwtGuard implements CanActivate {
     ): boolean | Promise<boolean> | Observable<boolean> {
         const request: RequestUser = context.switchToHttp().getRequest();
         const token: string | undefined = request.headers.authorization;
-
         if (!token || !token.startsWith('Bearer ')) {
             throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
         }

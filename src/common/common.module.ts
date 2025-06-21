@@ -27,7 +27,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
                     global: true,
                     secret: pass,
                     signOptions: {
-                        expiresIn: '1h',
+                        expiresIn: '365d',
                     },
                 };
             },

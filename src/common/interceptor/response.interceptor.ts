@@ -27,7 +27,9 @@ export class ResponseInterceptor<T> implements NestInterceptor {
 
         return next.handle().pipe(
             tap((val: any) => {
-                this.logger.info(`[Response From] ${request.path} : ${val}`);
+                this.logger.info(
+                    `[Response From] ${request.path} : ${JSON.stringify(val)}`,
+                );
             }),
             map((val: T) => ({
                 data: val,
