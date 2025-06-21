@@ -43,6 +43,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
         }),
     ],
     providers: [PrismaService],
-    exports: [PrismaService],
+    exports: [PrismaService, JwtModule],
 })
 export class CommonModule {}

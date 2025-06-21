@@ -3,11 +3,56 @@ import { UserResponse } from './dto/user-response.dto';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { RegisterMahasiswaRequest } from './dto/register-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
-import { RegisterUserRequest } from './dto/register-user-request.dto';
+import { LoginUserRequest } from './dto/login-user-request.dto';
+import { User } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import { LoginUserResponse } from './dto/login-user-response.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly jwtService: JwtService,
+    ) {}
+
+    async login(request: LoginUserRequest): Promise<LoginUserResponse> {
+        const user: User | null = await this.prismaService.user.findUnique({
+            where: {
+                id: request.id,
+            },
+        });
+
+        if (!user) {
+            throw new HttpException(
+                'Username atau Password Salah',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const isPasswordValid: boolean = await bcrypt.compare(
+            request.password,
+            user.password,
+        );
+
+        if (!isPasswordValid) {
+            throw new HttpException(
+                'Username atau Password Salah',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const token = this.jwtService.sign({
+            id: user.id,
+            role: user.role,
+        });
+
+        const response: UserResponse = this.toUserResponse(user);
+
+        return {
+            ...response,
+            token: token,
+        };
+    }
 
     async createMahasiswa(
         request: RegisterMahasiswaRequest,
@@ -28,11 +73,12 @@ export class AuthService {
         await this.prismaService.user.create({
             data: {
                 id: request.id,
+                name: request.name,
                 role: request.role,
                 password: await bcrypt.hash(request.password, 10),
                 mahasiswa: {
                     create: {
-                        nama: request.name,
+                        name: request.name,
                         semester: request.semester,
                         jurusan: request.jurusan,
                     },
@@ -43,7 +89,7 @@ export class AuthService {
         return this.toUserResponse(request);
     }
 
-    toUserResponse(request: RegisterUserRequest): UserResponse {
+    toUserResponse(request: User): UserResponse {
         return {
             id: request.id,
             role: request.role,

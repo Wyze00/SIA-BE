@@ -32,6 +32,7 @@ model User {
   id       String @id @db.VarChar(10)
   role     Role
   password String @db.VarChar(100)
+  name     String @db.VarChar(100)
 
   mahasiswa Mahasiswa?
   dosen     Dosen?
@@ -42,27 +43,30 @@ model User {
 
 model Mahasiswa {
   nim      String  @id @db.VarChar(10)
-  nama     String  @db.VarChar(100)
+  name     String  @db.VarChar(100)
   jurusan  Jurusan
   semester Int     @db.TinyInt
 
   user User @relation(fields: [nim], references: [id])
+
   @@map("mahasiswa")
 }
 
 model Dosen {
   nip  String @id @db.VarChar(10)
-  nama String @db.VarChar(100)
+  name String @db.VarChar(100)
 
   user User @relation(fields: [nip], references: [id])
+
   @@map("dosen")
 }
 
 model Admin {
   id_admin   String @id @db.VarChar(10)
-  nama       String @db.VarChar(100)
+  name       String @db.VarChar(100)
   departemen String @db.VarChar(100)
 
-  user       User   @relation(fields: [id_admin], references: [id])
+  user User @relation(fields: [id_admin], references: [id])
+
   @@map("admin")
 }
