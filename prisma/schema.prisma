@@ -12,3 +12,57 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  mahasiswa
+  dosen
+  admin
+}
+
+enum Jurusan {
+  informatika
+  dkv
+  industri
+  akuntansi
+  olb
+  management
+}
+
+model User {
+  id       String @id @db.VarChar(10)
+  role     Role   @default(mahasiswa)
+  password String @db.VarChar(100)
+
+  mahasiswa Mahasiswa?
+  dosen     Dosen?
+  admin     Admin?
+
+  @@map("users")
+}
+
+model Mahasiswa {
+  nim      String  @id @db.VarChar(10)
+  nama     String  @db.VarChar(100)
+  jurusan  Jurusan
+  semester Int     @default(1) @db.TinyInt
+
+  user User @relation(fields: [nim], references: [id])
+  @@map("mahasiswa")
+}
+
+model Dosen {
+  nip  String @id @db.VarChar(10)
+  nama String @db.VarChar(100)
+
+  user User @relation(fields: [nip], references: [id])
+  @@map("dosen")
+}
+
+model Admin {
+  id_admin   String @id @db.VarChar(10)
+  nama       String @db.VarChar(100)
+  departemen String @db.VarChar(100)
+
+  user       User   @relation(fields: [id_admin], references: [id])
+  @@map("admin")
+}
