@@ -30,7 +30,7 @@ enum Jurusan {
 
 model User {
   id       String @id @db.VarChar(10)
-  role     Role   @default(mahasiswa)
+  role     Role
   password String @db.VarChar(100)
 
   mahasiswa Mahasiswa?
@@ -44,7 +44,7 @@ model Mahasiswa {
   nim      String  @id @db.VarChar(10)
   nama     String  @db.VarChar(100)
   jurusan  Jurusan
-  semester Int     @default(1) @db.TinyInt
+  semester Int     @db.TinyInt
 
   user User @relation(fields: [nim], references: [id])
   @@map("mahasiswa")

@@ -1,6 +1,7 @@
 import { $Enums } from '@prisma/client';
 
-export class UserRole {
+export class UserResponse {
     id: string;
     role: $Enums.Role;
+    name: string;
 }
