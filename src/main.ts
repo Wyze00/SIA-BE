@@ -67,8 +67,8 @@ async function bootstrap() {
 
     // OpenApi Swagger
     const docsConfig = new DocumentBuilder()
-        .setTitle('Template')
-        .setDescription('Template Description')
+        .setTitle('SIA ITHB')
+        .setDescription('Api DOCS untuk SIA_ITHB')
         .addBearerAuth()
         .build();
 
