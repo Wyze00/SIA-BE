@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserResponse } from './dto/user-response.dto';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { RegisterMahasiswaRequest } from './dto/register-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginUserRequest } from './dto/login-user-request.dto';
 import { User } from '@prisma/client';
@@ -52,41 +51,6 @@ export class AuthService {
             ...response,
             token: token,
         };
-    }
-
-    async createMahasiswa(
-        request: RegisterMahasiswaRequest,
-    ): Promise<UserResponse> {
-        const count: number = await this.prismaService.mahasiswa.count({
-            where: {
-                nim: request.id,
-            },
-        });
-
-        if (count) {
-            throw new HttpException(
-                'Mahasiswa Sudah Ada',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-
-        await this.prismaService.user.create({
-            data: {
-                id: request.id,
-                name: request.name,
-                role: request.role,
-                password: await bcrypt.hash(request.password, 10),
-                mahasiswa: {
-                    create: {
-                        name: request.name,
-                        semester: request.semester,
-                        jurusan: request.jurusan,
-                    },
-                },
-            },
-        });
-
-        return this.toUserResponse(request);
     }
 
     toUserResponse(request: User): UserResponse {

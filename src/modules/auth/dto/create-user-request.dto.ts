@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { $Enums } from '@prisma/client';
-import { IsEnum, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
 
-export class RegisterUserRequest {
+export class CreateUserRequest {
     @ApiProperty({
         type: String,
         example: 'IF1125001',
@@ -22,13 +21,6 @@ export class RegisterUserRequest {
     @IsString()
     @Length(1, 100)
     password: string;
-
-    @ApiProperty({
-        enum: $Enums.Role,
-        example: 'mahasiswa',
-    })
-    @IsEnum($Enums.Role)
-    role: $Enums.Role;
 
     @ApiProperty({
         type: String,

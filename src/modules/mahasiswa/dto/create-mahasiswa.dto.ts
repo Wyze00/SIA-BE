@@ -1,9 +1,9 @@
 import { IsEnum, IsInt, IsPositive, Max } from 'class-validator';
-import { RegisterUserRequest } from './register-user-request.dto';
 import { $Enums } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateUserRequest } from '../../auth/dto/create-user-request.dto';
 
-export class RegisterMahasiswaRequest extends RegisterUserRequest {
+export class CreatMahasiswaRequest extends CreateUserRequest {
     @ApiProperty({
         enum: $Enums.Jurusan,
         example: 'olb',
