@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UserResponse } from './dto/user-response.dto';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginUserRequest } from './dto/login-user-request.dto';
@@ -45,19 +44,11 @@ export class AuthService {
             role: user.role,
         });
 
-        const response: UserResponse = this.toUserResponse(user);
-
         return {
-            ...response,
+            id: user.id,
+            name: user.name,
+            role: user.role,
             token: token,
-        };
-    }
-
-    toUserResponse(request: User): UserResponse {
-        return {
-            id: request.id,
-            role: request.role,
-            name: request.name,
         };
     }
 }

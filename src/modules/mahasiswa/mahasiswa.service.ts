@@ -3,11 +3,39 @@ import { PrismaService } from 'src/common/provider/prisma.service';
 import { CreatMahasiswaRequest } from './dto/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
 import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
-import { Mahasiswa } from '@prisma/client';
+import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
 
 @Injectable()
 export class MahasiswaService {
     constructor(private readonly prismaService: PrismaService) {}
+
+    async updateMahasiswa(
+        request: UpdateMahasiswaRequest,
+    ): Promise<MahasiswaRespone> {
+        const mhs = await this.prismaService.user.update({
+            where: {
+                id: request.nim,
+            },
+            data: {
+                id: request.newNim,
+                name: request.name,
+                mahasiswa: {
+                    update: {
+                        data: {
+                            name: request.name,
+                            jurusan: request.jurusan,
+                            semester: request.semester,
+                        },
+                    },
+                },
+            },
+            include: {
+                mahasiswa: true,
+            },
+        });
+
+        return mhs.mahasiswa!;
+    }
 
     async createMahasiswa(
         request: CreatMahasiswaRequest,
@@ -25,22 +53,25 @@ export class MahasiswaService {
             );
         }
 
-        const mhs: Mahasiswa = await this.prismaService.mahasiswa.create({
+        const mhs = await this.prismaService.user.create({
             data: {
+                id: request.id,
                 name: request.name,
-                semester: request.semester,
-                jurusan: request.jurusan,
-                user: {
+                role: 'mahasiswa',
+                password: await bcrypt.hash(request.password, 10),
+                mahasiswa: {
                     create: {
-                        id: request.id,
                         name: request.name,
-                        role: 'mahasiswa',
-                        password: await bcrypt.hash(request.password, 10),
+                        jurusan: request.jurusan,
+                        semester: request.semester,
                     },
                 },
             },
+            include: {
+                mahasiswa: true,
+            },
         });
 
-        return mhs;
+        return mhs.mahasiswa!;
     }
 }

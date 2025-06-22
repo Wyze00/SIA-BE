@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -34,20 +28,19 @@ model User {
   password String @db.VarChar(100)
   name     String @db.VarChar(100)
 
-  mahasiswa Mahasiswa?
-  dosen     Dosen?
   admin     Admin?
+  dosen     Dosen?
+  mahasiswa Mahasiswa?
 
   @@map("users")
 }
 
 model Mahasiswa {
   nim      String  @id @db.VarChar(10)
-  name     String  @db.VarChar(100)
   jurusan  Jurusan
   semester Int     @db.TinyInt
-
-  user User @relation(fields: [nim], references: [id])
+  name     String  @db.VarChar(100)
+  user     User    @relation(fields: [nim], references: [id])
 
   @@map("mahasiswa")
 }
@@ -55,18 +48,16 @@ model Mahasiswa {
 model Dosen {
   nip  String @id @db.VarChar(10)
   name String @db.VarChar(100)
-
-  user User @relation(fields: [nip], references: [id])
+  user User   @relation(fields: [nip], references: [id])
 
   @@map("dosen")
 }
 
 model Admin {
   id_admin   String @id @db.VarChar(10)
-  name       String @db.VarChar(100)
   departemen String @db.VarChar(100)
-
-  user User @relation(fields: [id_admin], references: [id])
+  name       String @db.VarChar(100)
+  user       User   @relation(fields: [id_admin], references: [id])
 
   @@map("admin")
 }

@@ -1,8 +1,50 @@
-import { $Enums, Mahasiswa } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
+import { $Enums } from '@prisma/client';
+import {
+    IsEnum,
+    IsInt,
+    IsPositive,
+    IsString,
+    Length,
+    Max,
+} from 'class-validator';
 
-export class MahasiswaRespone implements Mahasiswa {
+export class MahasiswaRespone {
+    @ApiProperty({
+        type: String,
+        example: 'IF1125001',
+        minLength: 1,
+        maxLength: 10,
+    })
+    @IsString()
+    @Length(1, 10)
     nim: string;
+
+    @ApiProperty({
+        type: String,
+        example: 'IF1125001',
+        minLength: 1,
+        maxLength: 100,
+    })
+    @IsString()
+    @Length(1, 100)
     name: string;
+
+    @ApiProperty({
+        enum: $Enums.Jurusan,
+        example: 'olb',
+    })
+    @IsEnum($Enums.Jurusan)
     jurusan: $Enums.Jurusan;
+
+    @ApiProperty({
+        type: Number,
+        example: 1,
+        minimum: 1,
+        maximum: 8,
+    })
+    @IsInt()
+    @IsPositive()
+    @Max(8)
     semester: number;
 }
