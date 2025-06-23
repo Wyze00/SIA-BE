@@ -4,10 +4,22 @@ import { CreatMahasiswaRequest } from './dto/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
 import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
 import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
+import { Mahasiswa } from '@prisma/client';
 
 @Injectable()
 export class MahasiswaService {
     constructor(private readonly prismaService: PrismaService) {}
+
+    async findMahasiswa(nim: string): Promise<MahasiswaRespone> {
+        const mhs: Mahasiswa | null =
+            await this.prismaService.mahasiswa.findUnique({
+                where: {
+                    nim: nim,
+                },
+            });
+
+        return mhs!;
+    }
 
     async updateMahasiswa(
         request: UpdateMahasiswaRequest,

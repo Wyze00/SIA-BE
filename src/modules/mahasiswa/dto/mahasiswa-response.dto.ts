@@ -22,7 +22,7 @@ export class MahasiswaRespone {
 
     @ApiProperty({
         type: String,
-        example: 'IF1125001',
+        example: 'Asep',
         minLength: 1,
         maxLength: 100,
     })

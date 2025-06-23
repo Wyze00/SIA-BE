@@ -1,19 +1,27 @@
 import {
     Body,
     Controller,
+    Get,
     HttpCode,
     HttpStatus,
     Post,
     Put,
     UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiCreatedResponse,
+    ApiOkResponse,
+} from '@nestjs/swagger';
 import { CreatMahasiswaRequest } from './dto/create-mahasiswa.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { MahasiswaService } from './mahasiswa.service';
 import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
 import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
+import { User } from 'src/common/decorator/user.decorator';
+import { UserRole } from 'src/common/dto/user-role.dto';
 
 @Controller('mahasiswa')
 export class MahasiswaController {
@@ -36,6 +44,13 @@ export class MahasiswaController {
         return await this.mahasiswaService.createMahasiswa(request);
     }
 
+    @ApiBody({
+        type: UpdateMahasiswaRequest,
+    })
+    @ApiOkResponse({
+        type: MahasiswaRespone,
+    })
+    @ApiBearerAuth()
     @Put()
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
@@ -44,5 +59,17 @@ export class MahasiswaController {
         @Body() request: UpdateMahasiswaRequest,
     ): Promise<MahasiswaRespone> {
         return await this.mahasiswaService.updateMahasiswa(request);
+    }
+
+    @ApiOkResponse({
+        type: MahasiswaRespone,
+    })
+    @ApiBearerAuth()
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @Roles('mahasiswa')
+    @UseGuards(JwtGuard)
+    async findMahasiswa(@User() user: UserRole): Promise<MahasiswaRespone> {
+        return await this.mahasiswaService.findMahasiswa(user.id);
     }
 }
