@@ -119,7 +119,7 @@ export class MahasiswaService {
             },
         });
 
-        if (isValidNewNim) {
+        if (isValidNewNim && nim != request.nim) {
             throw new HttpException('NIM sudah ada', HttpStatus.CONFLICT);
         }
 
