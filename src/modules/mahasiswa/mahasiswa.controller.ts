@@ -1,9 +1,11 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
     Put,
     UseGuards,
@@ -51,14 +53,15 @@ export class MahasiswaController {
         type: MahasiswaRespone,
     })
     @ApiBearerAuth()
-    @Put()
+    @Put('/:nim')
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
     async updateMahasiswa(
+        @Param('nim') nim: string,
         @Body() request: UpdateMahasiswaRequest,
     ): Promise<MahasiswaRespone> {
-        return await this.mahasiswaService.updateMahasiswa(request);
+        return await this.mahasiswaService.updateMahasiswa(request, nim);
     }
 
     @ApiOkResponse({
@@ -67,9 +70,22 @@ export class MahasiswaController {
     @ApiBearerAuth()
     @Get()
     @HttpCode(HttpStatus.OK)
-    @Roles('mahasiswa')
+    @Roles('mahasiswa', 'admin')
     @UseGuards(JwtGuard)
     async findMahasiswa(@User() user: UserRole): Promise<MahasiswaRespone> {
         return await this.mahasiswaService.findMahasiswa(user.id);
+    }
+
+    @ApiOkResponse({
+        type: Boolean,
+        example: true,
+    })
+    @ApiBearerAuth()
+    @Delete('/:nim')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async deleteMahasiswa(@Param('nim') nim: string): Promise<boolean> {
+        return await this.mahasiswaService.deleteMahasiswa(nim);
     }
 }

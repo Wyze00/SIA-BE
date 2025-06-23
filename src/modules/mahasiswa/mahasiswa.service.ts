@@ -10,6 +10,36 @@ import { Mahasiswa } from '@prisma/client';
 export class MahasiswaService {
     constructor(private readonly prismaService: PrismaService) {}
 
+    async deleteMahasiswa(nim: string): Promise<boolean> {
+        const count = await this.prismaService.mahasiswa.count({
+            where: {
+                nim: nim,
+            },
+        });
+
+        if (!count) {
+            throw new HttpException(
+                'Mahasiswa Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        await this.prismaService.$transaction([
+            this.prismaService.mahasiswa.delete({
+                where: {
+                    nim: nim,
+                },
+            }),
+            this.prismaService.user.delete({
+                where: {
+                    id: nim,
+                },
+            }),
+        ]);
+
+        return true;
+    }
+
     async findMahasiswa(nim: string): Promise<MahasiswaRespone> {
         const mhs: Mahasiswa | null =
             await this.prismaService.mahasiswa.findUnique({
@@ -23,13 +53,27 @@ export class MahasiswaService {
 
     async updateMahasiswa(
         request: UpdateMahasiswaRequest,
+        nim: string,
     ): Promise<MahasiswaRespone> {
+        const count = await this.prismaService.mahasiswa.count({
+            where: {
+                nim: nim,
+            },
+        });
+
+        if (!count) {
+            throw new HttpException(
+                'Mahasiswa Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
         const mhs = await this.prismaService.user.update({
             where: {
-                id: request.nim,
+                id: nim,
             },
             data: {
-                id: request.newNim,
+                id: request.nim,
                 name: request.name,
                 mahasiswa: {
                     update: {
