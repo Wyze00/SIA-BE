@@ -23,7 +23,9 @@ export class ResponseInterceptor<T> implements NestInterceptor {
     ): Observable<WebResponse<T>> {
         const request: Request = context.switchToHttp().getRequest();
 
-        this.logger.info(`[Request From] : ${request.path}`);
+        this.logger.info(
+            `[Request From] : ${request.path} | Controller ${context.getClass().name} | Handler ${context.getHandler().name}`,
+        );
 
         return next.handle().pipe(
             tap((val: any) => {

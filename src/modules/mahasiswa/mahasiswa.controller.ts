@@ -8,6 +8,7 @@ import {
     Param,
     Post,
     Put,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 import {
@@ -24,6 +25,7 @@ import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
 import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
 import { User } from 'src/common/decorator/user.decorator';
 import { UserRole } from 'src/common/dto/user-role.dto';
+import { $Enums } from '@prisma/client';
 
 @Controller('mahasiswa')
 export class MahasiswaController {
@@ -70,10 +72,39 @@ export class MahasiswaController {
     @ApiBearerAuth()
     @Get()
     @HttpCode(HttpStatus.OK)
-    @Roles('mahasiswa', 'admin')
+    @Roles('mahasiswa')
     @UseGuards(JwtGuard)
     async findMahasiswa(@User() user: UserRole): Promise<MahasiswaRespone> {
         return await this.mahasiswaService.findMahasiswa(user.id);
+    }
+
+    @ApiOkResponse({
+        type: [MahasiswaRespone],
+    })
+    @ApiBearerAuth()
+    @Get('/admin')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async findManyMahasiswa(
+        @Query('jurusan') jurusan?: $Enums.Jurusan,
+        @Query('semester') semester?: number,
+    ): Promise<MahasiswaRespone[]> {
+        return await this.mahasiswaService.findManyMahasiswa(jurusan, semester);
+    }
+
+    @ApiOkResponse({
+        type: MahasiswaRespone,
+    })
+    @ApiBearerAuth()
+    @Get('/:nim')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async findMahasiswaByNim(
+        @Param('nim') nim: string,
+    ): Promise<MahasiswaRespone> {
+        return await this.mahasiswaService.findMahasiswaByNim(nim);
     }
 
     @ApiOkResponse({

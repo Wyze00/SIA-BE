@@ -4,7 +4,7 @@ import { CreatMahasiswaRequest } from './dto/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
 import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
 import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
-import { Mahasiswa } from '@prisma/client';
+import { $Enums, Mahasiswa } from '@prisma/client';
 
 @Injectable()
 export class MahasiswaService {
@@ -51,21 +51,76 @@ export class MahasiswaService {
         return mhs!;
     }
 
+    async findMahasiswaByNim(nim: string): Promise<MahasiswaRespone> {
+        const mhs: Mahasiswa | null =
+            await this.prismaService.mahasiswa.findUnique({
+                where: {
+                    nim: nim,
+                },
+            });
+
+        if (!mhs) {
+            throw new HttpException(
+                'Mahasiswa Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        return mhs;
+    }
+
+    async findManyMahasiswa(
+        jurusan?: $Enums.Jurusan,
+        semester?: number,
+    ): Promise<MahasiswaRespone[]> {
+        const query: Record<string, any>[] = [];
+
+        if (jurusan) {
+            query.push({
+                jurusan: jurusan,
+            });
+        }
+
+        if (semester) {
+            query.push({
+                semester: semester,
+            });
+        }
+
+        const mhs: Mahasiswa[] = await this.prismaService.mahasiswa.findMany({
+            where: {
+                AND: query,
+            },
+        });
+
+        return mhs;
+    }
+
     async updateMahasiswa(
         request: UpdateMahasiswaRequest,
         nim: string,
     ): Promise<MahasiswaRespone> {
-        const count = await this.prismaService.mahasiswa.count({
+        const isValidOldNim = await this.prismaService.mahasiswa.count({
             where: {
                 nim: nim,
             },
         });
 
-        if (!count) {
+        if (!isValidOldNim) {
             throw new HttpException(
                 'Mahasiswa Tidak Ditemukan',
                 HttpStatus.NOT_FOUND,
             );
+        }
+
+        const isValidNewNim = await this.prismaService.mahasiswa.count({
+            where: {
+                nim: request.nim,
+            },
+        });
+
+        if (isValidNewNim) {
+            throw new HttpException('NIM sudah ada', HttpStatus.CONFLICT);
         }
 
         const mhs = await this.prismaService.user.update({
