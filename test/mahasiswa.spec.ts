@@ -75,6 +75,7 @@ describe('Auth Controller', () => {
                     name: 'Tester',
                     jurusan: 'informatika',
                     semester: 1,
+                    angkatan: '2025',
                 });
 
             const body = response.body as WebResponse<MahasiswaRespone>;
@@ -82,6 +83,7 @@ describe('Auth Controller', () => {
             expect(body.data?.name).toBe('Tester');
             expect(body.data?.jurusan).toBe('informatika');
             expect(body.data?.semester).toBe(1);
+            expect(body.data?.angkatan).toBe('2025');
 
             console.log(body);
         });
@@ -104,6 +106,7 @@ describe('Auth Controller', () => {
                     name: 'update',
                     jurusan: 'dkv',
                     semester: 3,
+                    angkatan: '2024',
                 });
 
             const body = response.body as WebResponse<MahasiswaRespone>;
@@ -111,6 +114,7 @@ describe('Auth Controller', () => {
             expect(body.data?.name).toBe('update');
             expect(body.data?.jurusan).toBe('dkv');
             expect(body.data?.semester).toBe(3);
+            expect(body.data?.angkatan).toBe('2024');
 
             console.log(body);
         });
@@ -134,6 +138,7 @@ describe('Auth Controller', () => {
             expect(body.data?.name).toBe('Tester');
             expect(body.data?.jurusan).toBe('informatika');
             expect(body.data?.semester).toBe(1);
+            expect(body.data?.angkatan).toBe('2025');
 
             console.log(body);
         });
@@ -157,6 +162,7 @@ describe('Auth Controller', () => {
             expect(body.data?.name).toBe('Tester');
             expect(body.data?.jurusan).toBe('informatika');
             expect(body.data?.semester).toBe(1);
+            expect(body.data?.angkatan).toBe('2025');
 
             console.log(body);
         });
@@ -205,7 +211,9 @@ describe('Auth Controller', () => {
 
         it('should success with query', async () => {
             const response = await request(app.getHttpServer())
-                .get('/mahasiswa/admin?jurusan=informatika&semester=1')
+                .get(
+                    '/mahasiswa/admin?jurusan=informatika&semester=1&angkatan=2025',
+                )
                 .set('Authorization', testService.ADMIN_TOKEN);
 
             const body = response.body as WebResponse<MahasiswaRespone[]>;

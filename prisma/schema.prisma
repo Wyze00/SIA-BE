@@ -40,6 +40,7 @@ model Mahasiswa {
   jurusan  Jurusan
   semester Int     @db.TinyInt
   name     String  @db.VarChar(100)
+  angkatan String  @db.Char(4)
   user     User    @relation(fields: [nim], references: [id])
 
   @@map("mahasiswa")

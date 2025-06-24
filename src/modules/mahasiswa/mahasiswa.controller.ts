@@ -89,8 +89,13 @@ export class MahasiswaController {
     async findManyMahasiswa(
         @Query('jurusan') jurusan?: $Enums.Jurusan,
         @Query('semester') semester?: number,
+        @Query('angkatan') angkatan?: string,
     ): Promise<MahasiswaRespone[]> {
-        return await this.mahasiswaService.findManyMahasiswa(jurusan, semester);
+        return await this.mahasiswaService.findManyMahasiswa(
+            jurusan,
+            semester,
+            angkatan,
+        );
     }
 
     @ApiOkResponse({

@@ -1,4 +1,11 @@
-import { IsEnum, IsInt, IsPositive, Max } from 'class-validator';
+import {
+    IsEnum,
+    IsInt,
+    IsPositive,
+    IsString,
+    Length,
+    Max,
+} from 'class-validator';
 import { $Enums } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateUserRequest } from '../../auth/dto/create-user-request.dto';
@@ -21,4 +28,14 @@ export class CreatMahasiswaRequest extends CreateUserRequest {
     @IsPositive()
     @Max(8)
     semester: number;
+
+    @ApiProperty({
+        type: String,
+        minLength: 4,
+        maxLength: 4,
+        example: '2025',
+    })
+    @IsString()
+    @Length(4, 4)
+    angkatan: string;
 }

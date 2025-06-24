@@ -47,4 +47,14 @@ export class MahasiswaRespone {
     @IsPositive()
     @Max(8)
     semester: number;
+
+    @ApiProperty({
+        type: String,
+        minLength: 4,
+        maxLength: 4,
+        example: '2025',
+    })
+    @IsString()
+    @Length(4, 4)
+    angkatan: string;
 }

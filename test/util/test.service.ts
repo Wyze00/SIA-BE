@@ -41,6 +41,7 @@ export class TestService {
                         jurusan: 'informatika',
                         name: 'Tester',
                         semester: 1,
+                        angkatan: '2025',
                     },
                 },
             },

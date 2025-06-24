@@ -72,6 +72,7 @@ export class MahasiswaService {
     async findManyMahasiswa(
         jurusan?: $Enums.Jurusan,
         semester?: number,
+        angkatan?: string,
     ): Promise<MahasiswaRespone[]> {
         const query: Record<string, any>[] = [];
 
@@ -84,6 +85,12 @@ export class MahasiswaService {
         if (semester) {
             query.push({
                 semester: semester,
+            });
+        }
+
+        if (angkatan) {
+            query.push({
+                angkatan: angkatan,
             });
         }
 
@@ -136,6 +143,7 @@ export class MahasiswaService {
                             name: request.name,
                             jurusan: request.jurusan,
                             semester: request.semester,
+                            angkatan: request.angkatan,
                         },
                     },
                 },
@@ -175,6 +183,7 @@ export class MahasiswaService {
                         name: request.name,
                         jurusan: request.jurusan,
                         semester: request.semester,
+                        angkatan: request.angkatan,
                     },
                 },
             },
