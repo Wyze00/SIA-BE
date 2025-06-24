@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Dosen } from '@prisma/client';
 import { IsString, Length } from 'class-validator';
 
-export class DosenResponse {
+export class DosenResponse implements Dosen {
     @ApiProperty({
         type: String,
         example: 'DSN5525001',

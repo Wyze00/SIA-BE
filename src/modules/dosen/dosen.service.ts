@@ -117,4 +117,10 @@ export class DosenService {
 
         return dosen;
     }
+
+    async findManyDosen(): Promise<DosenResponse[]> {
+        const dosen: Dosen[] = await this.prismaService.dosen.findMany();
+
+        return dosen;
+    }
 }

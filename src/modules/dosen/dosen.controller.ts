@@ -77,17 +77,17 @@ export class DosenController {
         return await this.dosenService.findDosen(user.id);
     }
 
-    // @ApiOkResponse({
-    //     type: [DosenResponse],
-    // })
-    // @ApiBearerAuth()
-    // @Get('/admin')
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // async findManyMahasiswa(): Promise<DosenResponse[]> {
-    //     throw new Error('Not implemented');
-    // }
+    @ApiOkResponse({
+        type: [DosenResponse],
+    })
+    @ApiBearerAuth()
+    @Get('/admin')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async findManyDosen(): Promise<DosenResponse[]> {
+        return await this.dosenService.findManyDosen();
+    }
 
     @ApiOkResponse({
         type: DosenResponse,
