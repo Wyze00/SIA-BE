@@ -4,6 +4,7 @@ import { CreateDosenRequest } from './dto/create-dosen-request.dto';
 import { DosenResponse } from './dto/dosen-response.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateDosenRequest } from './dto/update-dosen-request.dto';
+import { Dosen } from '@prisma/client';
 
 @Injectable()
 export class DosenService {
@@ -88,5 +89,15 @@ export class DosenService {
         });
 
         return dosen.dosen!;
+    }
+
+    async findDosen(nip: string): Promise<DosenResponse> {
+        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
+            where: {
+                nip: nip,
+            },
+        });
+
+        return dosen!;
     }
 }

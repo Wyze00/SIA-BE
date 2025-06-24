@@ -23,6 +23,8 @@ import { DosenResponse } from './dto/dosen-response.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { UpdateDosenRequest } from './dto/update-dosen-request.dto';
+import { User } from 'src/common/decorator/user.decorator';
+import { UserRole } from 'src/common/dto/user-role.dto';
 
 @Controller('dosen')
 export class DosenController {
@@ -63,17 +65,17 @@ export class DosenController {
         return await this.dosenService.updateDosen(nip, request);
     }
 
-    // @ApiOkResponse({
-    //     type: DosenResponse,
-    // })
-    // @ApiBearerAuth()
-    // @Get()
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('mahasiswa')
-    // @UseGuards(JwtGuard)
-    // async findMahasiswa(@User() user: UserRole): Promise<DosenResponse> {
-    //     throw new Error('Not implemented');
-    // }
+    @ApiOkResponse({
+        type: DosenResponse,
+    })
+    @ApiBearerAuth()
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @Roles('dosen')
+    @UseGuards(JwtGuard)
+    async findDosen(@User() user: UserRole): Promise<DosenResponse> {
+        return await this.dosenService.findDosen(user.id);
+    }
 
     // @ApiOkResponse({
     //     type: [DosenResponse],

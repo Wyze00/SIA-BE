@@ -15,7 +15,6 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { WebResponse } from 'src/common/dto/web-response.dto';
 import { TestService } from './util/test.service';
-import { MahasiswaRespone } from 'src/modules/mahasiswa/dto/mahasiswa-response.dto';
 import { TestModule } from './util/test.module';
 import { DosenResponse } from 'src/modules/dosen/dto/dosen-response.dto';
 
@@ -109,7 +108,7 @@ describe('Auth Controller', () => {
         });
     });
 
-    describe('GET /mahasiswa', () => {
+    describe('GET /dosen', () => {
         beforeEach(async () => {
             await testService.createDosen();
         });
@@ -122,11 +121,9 @@ describe('Auth Controller', () => {
                 .get('/dosen')
                 .set('Authorization', testService.DOSEN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone>;
-            expect(body.data?.nim).toBe('IF1125001');
-            expect(body.data?.name).toBe('Tester');
-            expect(body.data?.jurusan).toBe('informatika');
-            expect(body.data?.semester).toBe(1);
+            const body = response.body as WebResponse<DosenResponse>;
+            expect(body.data?.nip).toBe('DSN5525001');
+            expect(body.data?.name).toBe('Tester Dosen');
 
             console.log(body);
         });

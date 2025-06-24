@@ -12,7 +12,8 @@ export class TestService {
     readonly MHS_TOKEN =
         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IklGMTEyNTAwMSIsInJvbGUiOiJtYWhhc2lzd2EiLCJpYXQiOjE3NTA2Njc1NjgsImV4cCI6MTc4MjIwMzU2OH0.Jw8lXTnU0QQVojIKOBgdTe350NJWV4q2waMd3YN2dO4';
 
-    readonly DOSEN_TOKEN = 'Bearer ';
+    readonly DOSEN_TOKEN =
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IkRTTjU1MjUwMDEiLCJyb2xlIjoiZG9zZW4iLCJpYXQiOjE3NTA3NDgwNjAsImV4cCI6MTc4MjI4NDA2MH0.R09P1Hw-VosXeYMSlu4fjU_ISj1D8lONIciMoEIWLP8';
 
     async deleteMahasiswa() {
         await this.prismaService.mahasiswa.deleteMany({
