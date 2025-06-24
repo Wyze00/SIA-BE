@@ -11,6 +11,8 @@ export class TestService {
     readonly MHS_TOKEN =
         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IklGMTEyNTAwMSIsInJvbGUiOiJtYWhhc2lzd2EiLCJpYXQiOjE3NTA2Njc1NjgsImV4cCI6MTc4MjIwMzU2OH0.Jw8lXTnU0QQVojIKOBgdTe350NJWV4q2waMd3YN2dO4';
 
+    readonly DOSEN_TOKEN = 'Bearer ';
+
     async deleteMahasiswa() {
         await this.prismaService.mahasiswa.deleteMany({
             where: {
@@ -39,6 +41,36 @@ export class TestService {
                         semester: 1,
                     },
                 },
+            },
+        });
+    }
+
+    async createDosen() {
+        await this.prismaService.user.create({
+            data: {
+                id: 'DSN5525001',
+                name: 'Tester Dosen',
+                password: 'test',
+                role: 'dosen',
+                dosen: {
+                    create: {
+                        name: 'Tester Dosen',
+                    },
+                },
+            },
+        });
+    }
+
+    async deleteDosen() {
+        await this.prismaService.dosen.deleteMany({
+            where: {
+                nip: 'DSN5525001',
+            },
+        });
+
+        await this.prismaService.user.deleteMany({
+            where: {
+                id: 'DSN5525001',
             },
         });
     }
