@@ -170,17 +170,17 @@ describe('Auth Controller', () => {
         });
     });
 
-    describe('DELETE /mahasiswa/:id', () => {
+    describe('DELETE /dosen/:id', () => {
         beforeEach(async () => {
-            await testService.createMahasiswa();
+            await testService.createDosen();
         });
 
         afterEach(async () => {
-            await testService.deleteMahasiswa();
+            await testService.deleteDosen();
         });
         it('should success', async () => {
             const response = await request(app.getHttpServer())
-                .delete('/mahasiswa/IF1125001')
+                .delete('/dosen/DSN5525001')
                 .set('Authorization', testService.ADMIN_TOKEN);
 
             const body = response.body as WebResponse<boolean>;

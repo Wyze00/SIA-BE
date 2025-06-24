@@ -8,7 +8,6 @@ import {
     Param,
     Post,
     Put,
-    Query,
     UseGuards,
 } from '@nestjs/common';
 import { DosenService } from './dosen.service';
@@ -101,16 +100,16 @@ export class DosenController {
         return await this.dosenService.findDosenByNip(nip);
     }
 
-    // @ApiOkResponse({
-    //     type: Boolean,
-    //     example: true,
-    // })
-    // @ApiBearerAuth()
-    // @Delete('/:nim')
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // async deleteMahasiswa(@Param('nim') nim: string): Promise<boolean> {
-    //     throw new Error('Not implemented');
-    // }
+    @ApiOkResponse({
+        type: Boolean,
+        example: true,
+    })
+    @ApiBearerAuth()
+    @Delete('/:nip')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async deleteDosen(@Param('nip') nip: string): Promise<boolean> {
+        return await this.dosenService.deleteDosen(nip);
+    }
 }

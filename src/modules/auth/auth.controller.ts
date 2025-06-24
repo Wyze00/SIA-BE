@@ -1,7 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    HttpCode,
+    HttpStatus,
+    NotImplementedException,
+    Post,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserRequest } from './dto/login-user-request.dto';
-import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { LoginUserResponse } from './dto/login-user-response.dto';
 
 @Controller('auth')
@@ -20,7 +27,10 @@ export class AuthController {
         return await this.authService.login(request);
     }
 
+    @ApiBearerAuth()
     @Post('/logout')
     @HttpCode(HttpStatus.OK)
-    logout() {}
+    logout() {
+        throw new NotImplementedException();
+    }
 }

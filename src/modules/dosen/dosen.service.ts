@@ -123,4 +123,34 @@ export class DosenService {
 
         return dosen;
     }
+
+    async deleteDosen(nip: string): Promise<boolean> {
+        const count = await this.prismaService.dosen.count({
+            where: {
+                nip: nip,
+            },
+        });
+
+        if (!count) {
+            throw new HttpException(
+                'Mahasiswa Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        await this.prismaService.$transaction([
+            this.prismaService.dosen.delete({
+                where: {
+                    nip: nip,
+                },
+            }),
+            this.prismaService.user.delete({
+                where: {
+                    id: nip,
+                },
+            }),
+        ]);
+
+        return true;
+    }
 }
