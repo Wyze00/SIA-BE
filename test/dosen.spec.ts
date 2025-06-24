@@ -129,28 +129,26 @@ describe('Auth Controller', () => {
         });
     });
 
-    // describe('GET /mahasiswa/:id', () => {
-    //     beforeEach(async () => {
-    //         await testService.createMahasiswa();
-    //     });
+    describe('GET /dosen/:nip', () => {
+        beforeEach(async () => {
+            await testService.createDosen();
+        });
 
-    //     afterEach(async () => {
-    //         await testService.deleteMahasiswa();
-    //     });
-    //     it('should success', async () => {
-    //         const response = await request(app.getHttpServer())
-    //             .get('/mahasiswa/IF1125001')
-    //             .set('Authorization', testService.ADMIN_TOKEN);
+        afterEach(async () => {
+            await testService.deleteDosen();
+        });
+        it('should success', async () => {
+            const response = await request(app.getHttpServer())
+                .get('/dosen/DSN5525001')
+                .set('Authorization', testService.ADMIN_TOKEN);
 
-    //         const body = response.body as WebResponse<MahasiswaRespone>;
-    //         expect(body.data?.nim).toBe('IF1125001');
-    //         expect(body.data?.name).toBe('Tester');
-    //         expect(body.data?.jurusan).toBe('informatika');
-    //         expect(body.data?.semester).toBe(1);
+            const body = response.body as WebResponse<DosenResponse>;
+            expect(body.data?.nip).toBe('DSN5525001');
+            expect(body.data?.name).toBe('Tester Dosen');
 
-    //         console.log(body);
-    //     });
-    // });
+            console.log(body);
+        });
+    });
 
     // describe('GET /mahasiswa/admin', () => {
     //     beforeEach(async () => {

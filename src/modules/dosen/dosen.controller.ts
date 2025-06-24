@@ -89,19 +89,17 @@ export class DosenController {
     //     throw new Error('Not implemented');
     // }
 
-    // @ApiOkResponse({
-    //     type: DosenResponse,
-    // })
-    // @ApiBearerAuth()
-    // @Get('/:nim')
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // async findMahasiswaByNim(
-    //     @Param('nim') nim: string,
-    // ): Promise<DosenResponse> {
-    //     throw new Error('Not implemented');
-    // }
+    @ApiOkResponse({
+        type: DosenResponse,
+    })
+    @ApiBearerAuth()
+    @Get('/:nip')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async findDosenByNip(@Param('nip') nip: string): Promise<DosenResponse> {
+        return await this.dosenService.findDosenByNip(nip);
+    }
 
     // @ApiOkResponse({
     //     type: Boolean,

@@ -100,4 +100,21 @@ export class DosenService {
 
         return dosen!;
     }
+
+    async findDosenByNip(nip: string): Promise<DosenResponse> {
+        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
+            where: {
+                nip: nip,
+            },
+        });
+
+        if (!dosen) {
+            throw new HttpException(
+                'Dosen Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        return dosen;
+    }
 }
