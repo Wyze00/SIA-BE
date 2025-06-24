@@ -3,6 +3,7 @@ import { PrismaService } from 'src/common/provider/prisma.service';
 import { CreateDosenRequest } from './dto/create-dosen-request.dto';
 import { DosenResponse } from './dto/dosen-response.dto';
 import * as bcrypt from 'bcrypt';
+import { UpdateDosenRequest } from './dto/update-dosen-request.dto';
 
 @Injectable()
 export class DosenService {
@@ -28,6 +29,56 @@ export class DosenService {
                 dosen: {
                     create: {
                         name: request.name,
+                    },
+                },
+            },
+            include: {
+                dosen: true,
+            },
+        });
+
+        return dosen.dosen!;
+    }
+
+    async updateDosen(
+        nip: string,
+        request: UpdateDosenRequest,
+    ): Promise<DosenResponse> {
+        const isValidOldNip = await this.prismaService.dosen.count({
+            where: {
+                nip: nip,
+            },
+        });
+
+        if (!isValidOldNip) {
+            throw new HttpException(
+                'Mahasiswa Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const isValidNewNip = await this.prismaService.dosen.count({
+            where: {
+                nip: request.nip,
+            },
+        });
+
+        if (isValidNewNip && nip != request.nip) {
+            throw new HttpException('NIP sudah ada', HttpStatus.CONFLICT);
+        }
+
+        const dosen = await this.prismaService.user.update({
+            where: {
+                id: nip,
+            },
+            data: {
+                id: request.nip,
+                name: request.name,
+                dosen: {
+                    update: {
+                        data: {
+                            name: request.name,
+                        },
                     },
                 },
             },

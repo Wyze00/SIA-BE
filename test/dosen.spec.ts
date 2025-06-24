@@ -84,30 +84,26 @@ describe('Auth Controller', () => {
         });
     });
 
-    describe('PUT /mahasiswa/:id', () => {
+    describe('PUT /dosen/:id', () => {
         beforeEach(async () => {
-            await testService.createMahasiswa();
+            await testService.createDosen();
         });
 
         afterEach(async () => {
-            await testService.deleteMahasiswa();
+            await testService.deleteDosen();
         });
         it('should success', async () => {
             const response = await request(app.getHttpServer())
-                .put('/mahasiswa/IF1125001')
+                .put('/dosen/DSN5525001')
                 .set('Authorization', testService.ADMIN_TOKEN)
                 .send({
-                    nim: 'IF1125001',
+                    nip: 'DSN5525001',
                     name: 'update',
-                    jurusan: 'dkv',
-                    semester: 3,
                 });
 
-            const body = response.body as WebResponse<MahasiswaRespone>;
-            expect(body.data?.nim).toBe('IF1125001');
+            const body = response.body as WebResponse<DosenResponse>;
+            expect(body.data?.nip).toBe('DSN5525001');
             expect(body.data?.name).toBe('update');
-            expect(body.data?.jurusan).toBe('dkv');
-            expect(body.data?.semester).toBe(3);
 
             console.log(body);
         });
@@ -115,16 +111,16 @@ describe('Auth Controller', () => {
 
     describe('GET /mahasiswa', () => {
         beforeEach(async () => {
-            await testService.createMahasiswa();
+            await testService.createDosen();
         });
 
         afterEach(async () => {
-            await testService.deleteMahasiswa();
+            await testService.deleteDosen();
         });
         it('should success', async () => {
             const response = await request(app.getHttpServer())
-                .get('/mahasiswa')
-                .set('Authorization', testService.MHS_TOKEN);
+                .get('/dosen')
+                .set('Authorization', testService.DOSEN_TOKEN);
 
             const body = response.body as WebResponse<MahasiswaRespone>;
             expect(body.data?.nim).toBe('IF1125001');
@@ -136,81 +132,81 @@ describe('Auth Controller', () => {
         });
     });
 
-    describe('GET /mahasiswa/:id', () => {
-        beforeEach(async () => {
-            await testService.createMahasiswa();
-        });
+    // describe('GET /mahasiswa/:id', () => {
+    //     beforeEach(async () => {
+    //         await testService.createMahasiswa();
+    //     });
 
-        afterEach(async () => {
-            await testService.deleteMahasiswa();
-        });
-        it('should success', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/mahasiswa/IF1125001')
-                .set('Authorization', testService.ADMIN_TOKEN);
+    //     afterEach(async () => {
+    //         await testService.deleteMahasiswa();
+    //     });
+    //     it('should success', async () => {
+    //         const response = await request(app.getHttpServer())
+    //             .get('/mahasiswa/IF1125001')
+    //             .set('Authorization', testService.ADMIN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone>;
-            expect(body.data?.nim).toBe('IF1125001');
-            expect(body.data?.name).toBe('Tester');
-            expect(body.data?.jurusan).toBe('informatika');
-            expect(body.data?.semester).toBe(1);
+    //         const body = response.body as WebResponse<MahasiswaRespone>;
+    //         expect(body.data?.nim).toBe('IF1125001');
+    //         expect(body.data?.name).toBe('Tester');
+    //         expect(body.data?.jurusan).toBe('informatika');
+    //         expect(body.data?.semester).toBe(1);
 
-            console.log(body);
-        });
-    });
+    //         console.log(body);
+    //     });
+    // });
 
-    describe('GET /mahasiswa/admin', () => {
-        beforeEach(async () => {
-            await testService.createMahasiswa();
-        });
+    // describe('GET /mahasiswa/admin', () => {
+    //     beforeEach(async () => {
+    //         await testService.createMahasiswa();
+    //     });
 
-        afterEach(async () => {
-            await testService.deleteMahasiswa();
-        });
-        it('should success', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/mahasiswa/admin')
-                .set('Authorization', testService.ADMIN_TOKEN);
+    //     afterEach(async () => {
+    //         await testService.deleteMahasiswa();
+    //     });
+    //     it('should success', async () => {
+    //         const response = await request(app.getHttpServer())
+    //             .get('/mahasiswa/admin')
+    //             .set('Authorization', testService.ADMIN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone[]>;
-            expect(body.data).toHaveLength(1);
+    //         const body = response.body as WebResponse<MahasiswaRespone[]>;
+    //         expect(body.data).toHaveLength(1);
 
-            console.log(body);
-        });
+    //         console.log(body);
+    //     });
 
-        it('should success with query', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/mahasiswa/admin?semester=3')
-                .set('Authorization', testService.ADMIN_TOKEN);
+    //     it('should success with query', async () => {
+    //         const response = await request(app.getHttpServer())
+    //             .get('/mahasiswa/admin?semester=3')
+    //             .set('Authorization', testService.ADMIN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone[]>;
-            expect(body.data).toHaveLength(0);
+    //         const body = response.body as WebResponse<MahasiswaRespone[]>;
+    //         expect(body.data).toHaveLength(0);
 
-            console.log(body);
-        });
+    //         console.log(body);
+    //     });
 
-        it('should success with query', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/mahasiswa/admin?jurusan=dkv')
-                .set('Authorization', testService.ADMIN_TOKEN);
+    //     it('should success with query', async () => {
+    //         const response = await request(app.getHttpServer())
+    //             .get('/mahasiswa/admin?jurusan=dkv')
+    //             .set('Authorization', testService.ADMIN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone[]>;
-            expect(body.data).toHaveLength(0);
+    //         const body = response.body as WebResponse<MahasiswaRespone[]>;
+    //         expect(body.data).toHaveLength(0);
 
-            console.log(body);
-        });
+    //         console.log(body);
+    //     });
 
-        it('should success with query', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/mahasiswa/admin?jurusan=informatika&semester=1')
-                .set('Authorization', testService.ADMIN_TOKEN);
+    //     it('should success with query', async () => {
+    //         const response = await request(app.getHttpServer())
+    //             .get('/mahasiswa/admin?jurusan=informatika&semester=1')
+    //             .set('Authorization', testService.ADMIN_TOKEN);
 
-            const body = response.body as WebResponse<MahasiswaRespone[]>;
-            expect(body.data).toHaveLength(1);
+    //         const body = response.body as WebResponse<MahasiswaRespone[]>;
+    //         expect(body.data).toHaveLength(1);
 
-            console.log(body);
-        });
-    });
+    //         console.log(body);
+    //     });
+    // });
 
     describe('DELETE /mahasiswa/:id', () => {
         beforeEach(async () => {

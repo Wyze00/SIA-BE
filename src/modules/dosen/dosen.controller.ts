@@ -45,23 +45,23 @@ export class DosenController {
         return await this.dosenService.createDosen(request);
     }
 
-    // @ApiBody({
-    //     type: UpdateDosenRequest,
-    // })
-    // @ApiOkResponse({
-    //     type: DosenResponse,
-    // })
-    // @ApiBearerAuth()
-    // @Put('/:nip')
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // async updateMahasiswa(
-    //     @Param('nip') nim: string,
-    //     @Body() request: UpdateDosenRequest,
-    // ): Promise<DosenResponse> {
-    //     throw new Error('Not implemented');
-    // }
+    @ApiBody({
+        type: UpdateDosenRequest,
+    })
+    @ApiOkResponse({
+        type: DosenResponse,
+    })
+    @ApiBearerAuth()
+    @Put('/:nip')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async updateDosen(
+        @Param('nip') nip: string,
+        @Body() request: UpdateDosenRequest,
+    ): Promise<DosenResponse> {
+        return await this.dosenService.updateDosen(nip, request);
+    }
 
     // @ApiOkResponse({
     //     type: DosenResponse,
