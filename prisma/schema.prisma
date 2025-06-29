@@ -20,6 +20,7 @@ enum Jurusan {
   akuntansi
   olb
   management
+  si
 }
 
 model User {
@@ -51,6 +52,7 @@ model Dosen {
   name String @db.VarChar(100)
   user User   @relation(fields: [nip], references: [id])
 
+  matkul Matkul[]
   @@map("dosen")
 }
 
@@ -62,3 +64,15 @@ model Admin {
 
   @@map("admin")
 }
+
+model Matkul {
+  kode_matkul String @id @db.VarChar(10)
+  dosen_nip String @db.VarChar(10)
+  name String @db.VarChar(50)
+  total_pertemuan Int
+  total_sks Int
+
+  dosen Dosen @relation(fields: [dosen_nip], references: [nip])
+  @@map("matkul")
+}
+
