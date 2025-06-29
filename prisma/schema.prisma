@@ -100,6 +100,7 @@ model Matkul {
   mahasiswa_ambil_matkul MhsMengambilMatkul[]
   mahasiswa_absen_matkul MhsMengabsenMatkul[]
   mahasiswa_nilai_matkul MhsNilaiMatkul[]
+  rekomendasi_matkul     RekomendasiMatkul[]
 
   @@map("matkul")
 }
@@ -148,11 +149,21 @@ model MhsNilaiMatkul {
 
 model MhsTotalNilai {
   nim       String @id @db.VarChar(10)
-  semester  Int @db.TinyInt
-  total_sks Int @db.TinyInt
-  ips       Float @db.Float
+  semester  Int    @db.TinyInt
+  total_sks Int    @db.TinyInt
+  ips       Float  @db.Float
 
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
 
   @@map("mahasiswa_total_nilai")
+}
+
+model RekomendasiMatkul {
+  kode_matkul String  @id @db.VarChar(10)
+  semester    Int     @db.TinyInt
+  jurusan     Jurusan
+
+  matkul Matkul @relation(fields: [kode_matkul], references: [kode_matkul])
+
+  @@map("rekomendasi_matkul")
 }
