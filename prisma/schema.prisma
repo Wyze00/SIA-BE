@@ -30,6 +30,12 @@ enum StatusMatkul {
   gagal
 }
 
+enum StatusAbsen {
+  izin
+  alpha
+  hadir
+}
+
 model User {
   id       String @id @db.VarChar(10)
   role     Role
@@ -51,6 +57,7 @@ model Mahasiswa {
   angkatan         String               @db.Char(4)
   user             User                 @relation(fields: [nim], references: [id])
   mahasiswa_matkul MhsMengambilMatkul[]
+  mahasiswa_absen  MhsMengabsenMatkul[]
 
   @@map("mahasiswa")
 }
@@ -83,6 +90,7 @@ model Matkul {
 
   dosen            Dosen                @relation(fields: [dosen_nip], references: [nip])
   mahasiswa_matkul MhsMengambilMatkul[]
+  mahasiswa_absen  MhsMengabsenMatkul[]
 
   @@map("matkul")
 }
@@ -99,4 +107,17 @@ model MhsMengambilMatkul {
 
   @@id([kode_matkul, nim])
   @@map("mahasiswa_ambil_matkul")
+}
+
+model MhsMengabsenMatkul {
+  kode_matkul String       @db.VarChar(10)
+  nim         String       @db.VarChar(10)
+  pertemuan   Int
+  status      StatusAbsen
+
+  matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])
+  mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
+
+  @@id([kode_matkul, nim])
+  @@map("mahasiswa_absen_matkul")
 }
