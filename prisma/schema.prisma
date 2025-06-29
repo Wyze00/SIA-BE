@@ -23,6 +23,13 @@ enum Jurusan {
   si
 }
 
+enum StatusMatkul {
+  diambil
+  dibatalkan
+  lulus
+  gagal
+}
+
 model User {
   id       String @id @db.VarChar(10)
   role     Role
@@ -37,12 +44,13 @@ model User {
 }
 
 model Mahasiswa {
-  nim      String  @id @db.VarChar(10)
-  jurusan  Jurusan
-  semester Int     @db.TinyInt
-  name     String  @db.VarChar(100)
-  angkatan String  @db.Char(4)
-  user     User    @relation(fields: [nim], references: [id])
+  nim              String               @id @db.VarChar(10)
+  jurusan          Jurusan
+  semester         Int                  @db.TinyInt
+  name             String               @db.VarChar(100)
+  angkatan         String               @db.Char(4)
+  user             User                 @relation(fields: [nim], references: [id])
+  mahasiswa_matkul MhsMengambilMatkul[]
 
   @@map("mahasiswa")
 }
@@ -53,6 +61,7 @@ model Dosen {
   user User   @relation(fields: [nip], references: [id])
 
   matkul Matkul[]
+
   @@map("dosen")
 }
 
@@ -66,13 +75,28 @@ model Admin {
 }
 
 model Matkul {
-  kode_matkul String @id @db.VarChar(10)
-  dosen_nip String @db.VarChar(10)
-  name String @db.VarChar(50)
+  kode_matkul     String @id @db.VarChar(10)
+  dosen_nip       String @db.VarChar(10)
+  name            String @db.VarChar(50)
   total_pertemuan Int
-  total_sks Int
+  total_sks       Int
 
-  dosen Dosen @relation(fields: [dosen_nip], references: [nip])
+  dosen            Dosen                @relation(fields: [dosen_nip], references: [nip])
+  mahasiswa_matkul MhsMengambilMatkul[]
+
   @@map("matkul")
 }
 
+model MhsMengambilMatkul {
+  kode_matkul String       @db.VarChar(10)
+  nim         String       @db.VarChar(10)
+  semester    Int
+  nilai_huruf String?      @db.Char(2)
+  status      StatusMatkul
+
+  matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])
+  mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
+
+  @@id([kode_matkul, nim])
+  @@map("mahasiswa_ambil_matkul")
+}
