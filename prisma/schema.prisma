@@ -56,15 +56,16 @@ model User {
 }
 
 model Mahasiswa {
-  nim                    String               @id @db.VarChar(10)
-  jurusan                Jurusan
-  semester               Int                  @db.TinyInt
-  name                   String               @db.VarChar(100)
-  angkatan               String               @db.Char(4)
-  user                   User                 @relation(fields: [nim], references: [id])
-  mahasiswa_ambil_matkul MhsMengambilMatkul[]
-  mahasiswa_absen_matkul MhsMengabsenMatkul[]
-  mahasiswa_nilai_matkul MhsNilaiMatkul[]
+  nim          String               @id @db.VarChar(10)
+  jurusan      Jurusan
+  semester     Int                  @db.TinyInt
+  name         String               @db.VarChar(100)
+  angkatan     String               @db.Char(4)
+  user         User                 @relation(fields: [nim], references: [id])
+  ambil_matkul MhsMengambilMatkul[]
+  absen_matkul MhsMengabsenMatkul[]
+  nilai_matkul MhsNilaiMatkul[]
+  total_nilai  MhsTotalNilai?
 
   @@map("mahasiswa")
 }
@@ -143,4 +144,15 @@ model MhsNilaiMatkul {
 
   @@id([kode_matkul, nim])
   @@map("mahasiswa_nilai_matkul")
+}
+
+model MhsTotalNilai {
+  nim       String @id @db.VarChar(10)
+  semester  Int @db.TinyInt
+  total_sks Int @db.TinyInt
+  ips       Float @db.Float
+
+  mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
+
+  @@map("mahasiswa_total_nilai")
 }
