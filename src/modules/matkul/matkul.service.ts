@@ -1,11 +1,46 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
 import { UpdateMatkulRequest } from './dto/update-matkul.dto-request';
+import { PrismaService } from 'src/common/provider/prisma.service';
+import { Matkul } from '@prisma/client';
+import { MatkulResponse } from './dto/matkul-reesponse.dto';
 
 @Injectable()
 export class MatkulService {
-    create(request: CreateMatkulRequest) {
-        return 'This action adds a new matkul';
+    constructor(private readonly prismaService: PrismaService) {}
+
+    async create(request: CreateMatkulRequest): Promise<MatkulResponse> {
+        const isDosenValid = await this.prismaService.dosen.findUnique({
+            where: {
+                nip: request.dosen_nip,
+            },
+        });
+
+        if (!isDosenValid) {
+            throw new HttpException(
+                'Dosen Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const isMatkulValid = await this.prismaService.matkul.findUnique({
+            where: {
+                kode_matkul: request.kode_matkul,
+            },
+        });
+
+        if (isMatkulValid) {
+            throw new HttpException(
+                'Kode Matkul Sudah Ada',
+                HttpStatus.CONFLICT,
+            );
+        }
+
+        const matkul: Matkul = await this.prismaService.matkul.create({
+            data: request,
+        });
+
+        return matkul;
     }
 
     findAll() {
@@ -17,6 +52,7 @@ export class MatkulService {
     }
 
     update(id: number, request: UpdateMatkulRequest) {
+        console.log(request);
         return `This action updates a #${id} matkul`;
     }
 
