@@ -93,7 +93,26 @@ export class MatkulService {
         return updatedMatkul;
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} matkul`;
+    async remove(kode_matkul: string): Promise<boolean> {
+        const isValidMatkul = await this.prismaService.matkul.count({
+            where: {
+                kode_matkul,
+            },
+        });
+
+        if (!isValidMatkul) {
+            throw new HttpException(
+                'Matkul Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        await this.prismaService.matkul.delete({
+            where: {
+                kode_matkul,
+            },
+        });
+
+        return true;
     }
 }

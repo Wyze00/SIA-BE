@@ -86,8 +86,16 @@ export class MatkulController {
         return this.matkulService.update(kode_matkul, request);
     }
 
+    @ApiOkResponse({
+        type: Boolean,
+        example: true,
+    })
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
     @Delete(':kode_matkul')
-    remove(@Param('kode_matkul') kode_matkul: string) {
-        return this.matkulService.remove(+kode_matkul);
+    remove(@Param('kode_matkul') kode_matkul: string): Promise<boolean> {
+        return this.matkulService.remove(kode_matkul);
     }
 }
