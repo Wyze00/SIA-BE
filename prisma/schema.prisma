@@ -31,15 +31,20 @@ enum StatusMatkul {
 }
 
 enum StatusAbsen {
+  none
   izin
   alpha
   hadir
 }
 
 enum TipeNilaiMatkul {
-  uts
-  uas
-  quiz
+  UTS
+  UAS
+  QUIZ1
+  QUIZ2
+  QUIZ3
+  QUIZ4
+  QUIZ5
 }
 
 model User {
