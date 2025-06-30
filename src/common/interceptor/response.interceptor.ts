@@ -24,7 +24,7 @@ export class ResponseInterceptor<T> implements NestInterceptor {
         const request: Request = context.switchToHttp().getRequest();
 
         this.logger.info(
-            `[Request From] : ${request.path} | Controller ${context.getClass().name} | Handler ${context.getHandler().name}`,
+            `[Request From] : ${request.path} | Controller ${context.getClass().name} | Handler ${context.getHandler().name} ${request.body ? 'Body :' + JSON.stringify(request.body) : ''}`,
         );
 
         return next.handle().pipe(

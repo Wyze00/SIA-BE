@@ -9,6 +9,7 @@ import {
     HttpStatus,
     UseGuards,
     Put,
+    Query,
 } from '@nestjs/common';
 import { MatkulService } from './matkul.service';
 import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
@@ -22,10 +23,33 @@ import {
     ApiOkResponse,
 } from '@nestjs/swagger';
 import { MatkulResponse } from './dto/matkul-reesponse.dto';
+import { RecomendationMatkulRequest } from './dto/recomendation-matkul-request.dto';
+import { RecomendationMatkulResponse } from './dto/recomendation-matkul-response.dto';
+import { FindManyRecomendationMatkulRequest } from './dto/find-many-recomendation-matkul-request.dto';
 
 @Controller('matkul')
 export class MatkulController {
     constructor(private readonly matkulService: MatkulService) {}
+
+    @ApiBody({
+        type: RecomendationMatkulRequest,
+    })
+    @ApiOkResponse({
+        type: RecomendationMatkulResponse,
+    })
+    @ApiBearerAuth()
+    @Get('recomendation')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    findAllRecomendation(
+        @Query() query: FindManyRecomendationMatkulRequest,
+    ): Promise<RecomendationMatkulResponse> {
+        return this.matkulService.findAllRecomendation(
+            query.semester,
+            query.jurusan,
+        );
+    }
 
     @ApiBody({
         type: CreateMatkulRequest,
@@ -38,9 +62,7 @@ export class MatkulController {
     @HttpCode(HttpStatus.CREATED)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async create(
-        @Body() request: CreateMatkulRequest,
-    ): Promise<MatkulResponse> {
+    create(@Body() request: CreateMatkulRequest): Promise<MatkulResponse> {
         return this.matkulService.create(request);
     }
 
@@ -52,7 +74,7 @@ export class MatkulController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async findAll(): Promise<MatkulResponse[]> {
+    findAll(): Promise<MatkulResponse[]> {
         return this.matkulService.findAll();
     }
 

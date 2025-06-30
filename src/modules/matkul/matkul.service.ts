@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
 import { UpdateMatkulRequest } from './dto/update-matkul.dto-request';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { Matkul } from '@prisma/client';
+import { $Enums, Matkul } from '@prisma/client';
 import { MatkulResponse } from './dto/matkul-reesponse.dto';
 
 @Injectable()
@@ -114,5 +114,60 @@ export class MatkulService {
         });
 
         return true;
+    }
+
+    async findAllRecomendation(semester: number, jurusan: $Enums.Jurusan) {
+        if (semester < 1 || semester > 8) {
+            throw new HttpException(
+                'Semester Must Be 1 Until 8',
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        const rekomendasiRaw =
+            await this.prismaService.rekomendasiMatkul.findMany({
+                where: { semester, jurusan },
+                include: {
+                    matkul: {
+                        include: {
+                            dosen: true,
+                        },
+                    },
+                },
+            });
+
+        const rekomendasi = rekomendasiRaw.map((r) => {
+            const m = r.matkul;
+            return {
+                kode_matkul: m.kode_matkul,
+                name: m.name,
+                total_sks: m.total_sks,
+                total_pertemuan: m.total_pertemuan,
+                dosen_nip: m.dosen_nip,
+                dosen_name: m.dosen.name,
+            };
+        });
+
+        const allMatkul = await this.prismaService.matkul.findMany({
+            include: { dosen: true },
+        });
+
+        const notIn = allMatkul
+            .filter(
+                (matkul) =>
+                    !rekomendasi.find(
+                        (r) => r.kode_matkul === matkul.kode_matkul,
+                    ),
+            )
+            .map((m) => ({
+                kode_matkul: m.kode_matkul,
+                name: m.name,
+                total_sks: m.total_sks,
+                total_pertemuan: m.total_pertemuan,
+                dosen_nip: m.dosen_nip,
+                dosen_name: m.dosen.name,
+            }));
+
+        return { in: rekomendasi, notIn };
     }
 }
