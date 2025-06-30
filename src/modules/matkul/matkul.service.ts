@@ -48,13 +48,49 @@ export class MatkulService {
         return matkul;
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} matkul`;
+    async findOne(kode_matkul: string): Promise<MatkulResponse> {
+        const matkul: Matkul | null =
+            await this.prismaService.matkul.findUnique({
+                where: {
+                    kode_matkul,
+                },
+            });
+
+        if (!matkul) {
+            throw new HttpException(
+                'Matkul Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        return matkul;
     }
 
-    update(id: number, request: UpdateMatkulRequest) {
-        console.log(request);
-        return `This action updates a #${id} matkul`;
+    async update(
+        kode_matkul: string,
+        request: UpdateMatkulRequest,
+    ): Promise<MatkulResponse> {
+        const isValidMatkul = await this.prismaService.matkul.findUnique({
+            where: {
+                kode_matkul,
+            },
+        });
+
+        if (!isValidMatkul) {
+            throw new HttpException(
+                'Matkul Tidak Ditemukan',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const updatedMatkul: Matkul = await this.prismaService.matkul.update({
+            where: {
+                kode_matkul,
+            },
+            data: request,
+        });
+
+        return updatedMatkul;
     }
 
     remove(id: number) {

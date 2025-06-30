@@ -3,12 +3,12 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
     Delete,
     HttpCode,
     HttpStatus,
     UseGuards,
+    Put,
 } from '@nestjs/common';
 import { MatkulService } from './matkul.service';
 import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
@@ -56,21 +56,38 @@ export class MatkulController {
         return this.matkulService.findAll();
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.matkulService.findOne(+id);
+    @ApiOkResponse({
+        type: MatkulResponse,
+    })
+    @ApiBearerAuth()
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    @Get(':kode_matkul')
+    findOne(
+        @Param('kode_matkul') kode_matkul: string,
+    ): Promise<MatkulResponse> {
+        return this.matkulService.findOne(kode_matkul);
     }
 
-    @Patch(':id')
+    @ApiOkResponse({
+        type: MatkulResponse,
+    })
+    @ApiBearerAuth()
+    @Put(':kode_matkul')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
     update(
-        @Param('id') id: string,
-        @Body() updateMatkulDto: UpdateMatkulRequest,
-    ) {
-        return this.matkulService.update(+id, updateMatkulDto);
+        @Param('kode_matkul') kode_matkul: string,
+        @Body() request: UpdateMatkulRequest,
+    ): Promise<MatkulResponse> {
+        return this.matkulService.update(kode_matkul, request);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.matkulService.remove(+id);
+    @Delete(':kode_matkul')
+    remove(@Param('kode_matkul') kode_matkul: string) {
+        return this.matkulService.remove(+kode_matkul);
     }
 }
