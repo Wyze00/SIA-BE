@@ -43,8 +43,9 @@ export class MatkulService {
         return matkul;
     }
 
-    findAll() {
-        return `This action returns all matkul`;
+    async findAll(): Promise<MatkulResponse[]> {
+        const matkul: Matkul[] = await this.prismaService.matkul.findMany();
+        return matkul;
     }
 
     findOne(id: number) {

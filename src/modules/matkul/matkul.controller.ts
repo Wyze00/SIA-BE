@@ -15,7 +15,12 @@ import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
 import { UpdateMatkulRequest } from './dto/update-matkul.dto-request';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { Roles } from 'src/common/decorator/roles.decorator';
-import { ApiBearerAuth, ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiCreatedResponse,
+    ApiOkResponse,
+} from '@nestjs/swagger';
 import { MatkulResponse } from './dto/matkul-reesponse.dto';
 
 @Controller('matkul')
@@ -36,11 +41,18 @@ export class MatkulController {
     async create(
         @Body() request: CreateMatkulRequest,
     ): Promise<MatkulResponse> {
-        return await this.matkulService.create(request);
+        return this.matkulService.create(request);
     }
 
+    @ApiOkResponse({
+        type: [MatkulResponse],
+    })
+    @ApiBearerAuth()
     @Get()
-    findAll() {
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    async findAll(): Promise<MatkulResponse[]> {
         return this.matkulService.findAll();
     }
 
