@@ -2,8 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
 import { UpdateMatkulRequest } from './dto/update-matkul.dto-request';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { $Enums, Matkul } from '@prisma/client';
+import { $Enums, Matkul, RekomendasiMatkul } from '@prisma/client';
 import { MatkulResponse } from './dto/matkul-reesponse.dto';
+import { RecomendationMatkul } from './dto/recomendation-matkul.dto';
 
 @Injectable()
 export class MatkulService {
@@ -169,5 +170,49 @@ export class MatkulService {
             }));
 
         return { in: rekomendasi, notIn };
+    }
+
+    async addRecomendation(
+        request: RecomendationMatkul,
+    ): Promise<RecomendationMatkul> {
+        const isValidMatkul = await this.prismaService.matkul.findUnique({
+            where: {
+                kode_matkul: request.kode_matkul,
+            },
+        });
+
+        if (!isValidMatkul) {
+            throw new HttpException(
+                'Matkul Tidak Ditemukn',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const isAlreadyAdded =
+            await this.prismaService.rekomendasiMatkul.findUnique({
+                where: {
+                    kode_matkul: request.kode_matkul,
+                    jurusan: request.jurusan,
+                    semester: request.semester,
+                },
+            });
+
+        if (isAlreadyAdded) {
+            throw new HttpException(
+                'Rekomendasi Matkul Sudah Ada',
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        const matkul: RekomendasiMatkul =
+            await this.prismaService.rekomendasiMatkul.create({
+                data: {
+                    kode_matkul: request.kode_matkul,
+                    semester: request.semester,
+                    jurusan: request.jurusan,
+                },
+            });
+
+        return matkul;
     }
 }

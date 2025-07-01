@@ -23,7 +23,7 @@ import {
     ApiOkResponse,
 } from '@nestjs/swagger';
 import { MatkulResponse } from './dto/matkul-reesponse.dto';
-import { RecomendationMatkulRequest } from './dto/recomendation-matkul-request.dto';
+import { RecomendationMatkul } from './dto/recomendation-matkul.dto';
 import { RecomendationMatkulResponse } from './dto/recomendation-matkul-response.dto';
 import { FindManyRecomendationMatkulRequest } from './dto/find-many-recomendation-matkul-request.dto';
 
@@ -32,7 +32,7 @@ export class MatkulController {
     constructor(private readonly matkulService: MatkulService) {}
 
     @ApiBody({
-        type: RecomendationMatkulRequest,
+        type: RecomendationMatkul,
     })
     @ApiOkResponse({
         type: RecomendationMatkulResponse,
@@ -49,6 +49,23 @@ export class MatkulController {
             query.semester,
             query.jurusan,
         );
+    }
+
+    @ApiBody({
+        type: RecomendationMatkul,
+    })
+    @ApiOkResponse({
+        type: RecomendationMatkulResponse,
+    })
+    @ApiBearerAuth()
+    @Post('recomendation')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    addRecomendation(
+        @Body() request: RecomendationMatkul,
+    ): Promise<RecomendationMatkul> {
+        return this.matkulService.addRecomendation(request);
     }
 
     @ApiBody({
