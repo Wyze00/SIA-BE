@@ -55,7 +55,7 @@ export class MatkulController {
         type: RecomendationMatkul,
     })
     @ApiOkResponse({
-        type: RecomendationMatkulResponse,
+        type: RecomendationMatkul,
     })
     @ApiBearerAuth()
     @Post('recomendation')
@@ -66,6 +66,24 @@ export class MatkulController {
         @Body() request: RecomendationMatkul,
     ): Promise<RecomendationMatkul> {
         return this.matkulService.addRecomendation(request);
+    }
+
+    @ApiBody({
+        type: RecomendationMatkul,
+    })
+    @ApiOkResponse({
+        type: Boolean,
+        example: true,
+    })
+    @ApiBearerAuth()
+    @Delete('recomendation')
+    @HttpCode(HttpStatus.OK)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    removeRecomendation(
+        @Body() request: RecomendationMatkul,
+    ): Promise<boolean> {
+        return this.matkulService.removeRecomendation(request);
     }
 
     @ApiBody({

@@ -215,4 +215,45 @@ export class MatkulService {
 
         return matkul;
     }
+
+    async removeRecomendation(request: RecomendationMatkul): Promise<boolean> {
+        const isValidMatkul = await this.prismaService.matkul.findUnique({
+            where: {
+                kode_matkul: request.kode_matkul,
+            },
+        });
+
+        if (!isValidMatkul) {
+            throw new HttpException(
+                'Matkul Tidak Ditemukn',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        const isAlreadyAdded =
+            await this.prismaService.rekomendasiMatkul.findUnique({
+                where: {
+                    kode_matkul: request.kode_matkul,
+                    jurusan: request.jurusan,
+                    semester: request.semester,
+                },
+            });
+
+        if (!isAlreadyAdded) {
+            throw new HttpException(
+                'Rekomendasi Matkul Tidak Ada',
+                HttpStatus.NOT_FOUND,
+            );
+        }
+
+        await this.prismaService.rekomendasiMatkul.delete({
+            where: {
+                kode_matkul: request.kode_matkul,
+                semester: request.semester,
+                jurusan: request.jurusan,
+            },
+        });
+
+        return true;
+    }
 }
