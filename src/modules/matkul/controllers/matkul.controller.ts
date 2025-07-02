@@ -9,11 +9,10 @@ import {
     HttpStatus,
     UseGuards,
     Put,
-    Query,
 } from '@nestjs/common';
-import { MatkulService } from './matkul.service';
-import { CreateMatkulRequest } from './dto/create-matkul-request.dto';
-import { UpdateMatkulRequest } from './dto/update-matkul.dto-request';
+import { MatkulService } from '../services/matkul.service';
+import { CreateMatkulRequest } from '../dto/create-matkul-request.dto';
+import { UpdateMatkulRequest } from '../dto/update-matkul.dto-request';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import {
@@ -22,69 +21,11 @@ import {
     ApiCreatedResponse,
     ApiOkResponse,
 } from '@nestjs/swagger';
-import { MatkulResponse } from './dto/matkul-reesponse.dto';
-import { RecomendationMatkul } from './dto/recomendation-matkul.dto';
-import { RecomendationMatkulResponse } from './dto/recomendation-matkul-response.dto';
-import { FindManyRecomendationMatkulRequest } from './dto/find-many-recomendation-matkul-request.dto';
+import { MatkulResponse } from '../dto/matkul-reesponse.dto';
 
 @Controller('matkul')
 export class MatkulController {
     constructor(private readonly matkulService: MatkulService) {}
-
-    @ApiBody({
-        type: RecomendationMatkul,
-    })
-    @ApiOkResponse({
-        type: RecomendationMatkulResponse,
-    })
-    @ApiBearerAuth()
-    @Get('recomendation')
-    @HttpCode(HttpStatus.OK)
-    @Roles('admin')
-    @UseGuards(JwtGuard)
-    findAllRecomendation(
-        @Query() query: FindManyRecomendationMatkulRequest,
-    ): Promise<RecomendationMatkulResponse> {
-        return this.matkulService.findAllRecomendation(
-            query.semester,
-            query.jurusan,
-        );
-    }
-
-    @ApiBody({
-        type: RecomendationMatkul,
-    })
-    @ApiOkResponse({
-        type: RecomendationMatkul,
-    })
-    @ApiBearerAuth()
-    @Post('recomendation')
-    @HttpCode(HttpStatus.OK)
-    @Roles('admin')
-    @UseGuards(JwtGuard)
-    addRecomendation(
-        @Body() request: RecomendationMatkul,
-    ): Promise<RecomendationMatkul> {
-        return this.matkulService.addRecomendation(request);
-    }
-
-    @ApiBody({
-        type: RecomendationMatkul,
-    })
-    @ApiOkResponse({
-        type: Boolean,
-        example: true,
-    })
-    @ApiBearerAuth()
-    @Delete('recomendation')
-    @HttpCode(HttpStatus.OK)
-    @Roles('admin')
-    @UseGuards(JwtGuard)
-    removeRecomendation(
-        @Body() request: RecomendationMatkul,
-    ): Promise<boolean> {
-        return this.matkulService.removeRecomendation(request);
-    }
 
     @ApiBody({
         type: CreateMatkulRequest,
