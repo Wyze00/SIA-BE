@@ -1,3 +1,3 @@
-import { MahasiswaRespone } from './mahasiswa-response.dto';
+import { MahasiswaResponse } from './mahasiswa-response.dto';
 
-export class UpdateMahasiswaRequest extends MahasiswaRespone {}
+export class UpdateMahasiswaRequest extends MahasiswaResponse {}

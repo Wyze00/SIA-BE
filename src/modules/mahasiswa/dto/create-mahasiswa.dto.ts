@@ -10,7 +10,7 @@ import { $Enums } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateUserRequest } from '../../auth/dto/create-user-request.dto';
 
-export class CreatMahasiswaRequest extends CreateUserRequest {
+export class CreateMahasiswaRequest extends CreateUserRequest {
     @ApiProperty({
         enum: $Enums.Jurusan,
         example: 'olb',

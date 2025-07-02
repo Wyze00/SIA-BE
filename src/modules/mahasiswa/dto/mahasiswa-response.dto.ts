@@ -9,7 +9,7 @@ import {
     Max,
 } from 'class-validator';
 
-export class MahasiswaRespone {
+export class MahasiswaResponse {
     @ApiProperty({
         type: String,
         example: 'IF1125001',

@@ -1,28 +1,24 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { CreatMahasiswaRequest } from './dto/create-mahasiswa.dto';
+import { CreateMahasiswaRequest } from './dto/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
-import { MahasiswaRespone } from './dto/mahasiswa-response.dto';
+import { MahasiswaResponse } from './dto/mahasiswa-response.dto';
 import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
 import { $Enums, Mahasiswa } from '@prisma/client';
+import { UserWithMahasiswa } from './dto/types/user-with-mahasiswa.types';
 
 @Injectable()
 export class MahasiswaService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    async deleteMahasiswa(nim: string): Promise<boolean> {
-        const count = await this.prismaService.mahasiswa.count({
-            where: {
-                nim: nim,
-            },
-        });
+    // Core
 
-        if (!count) {
-            throw new HttpException(
-                'Mahasiswa Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
-        }
+    async remove(nim: string): Promise<void> {
+        await this.ensureMahasiswaExistsOrThrow(nim);
 
         await this.prismaService.$transaction([
             this.prismaService.mahasiswa.delete({
@@ -36,143 +32,85 @@ export class MahasiswaService {
                 },
             }),
         ]);
-
-        return true;
     }
 
-    async findMahasiswa(nim: string): Promise<MahasiswaRespone> {
-        const mhs: Mahasiswa | null =
-            await this.prismaService.mahasiswa.findUnique({
-                where: {
-                    nim: nim,
-                },
-            });
-
-        return mhs!;
+    async findOne(nim: string): Promise<MahasiswaResponse> {
+        const mahasiswa: Mahasiswa =
+            await this.ensureMahasiswaExistsOrThrow(nim);
+        return this.toMahasiswaResponse(mahasiswa);
     }
 
-    async findMahasiswaByNim(nim: string): Promise<MahasiswaRespone> {
-        const mhs: Mahasiswa | null =
-            await this.prismaService.mahasiswa.findUnique({
-                where: {
-                    nim: nim,
-                },
-            });
-
-        if (!mhs) {
-            throw new HttpException(
-                'Mahasiswa Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
-        }
-
-        return mhs;
-    }
-
-    async findManyMahasiswa(
+    async findAll(
         jurusan?: $Enums.Jurusan,
         semester?: number,
         angkatan?: string,
-    ): Promise<MahasiswaRespone[]> {
-        const query: Record<string, any>[] = [];
+    ): Promise<MahasiswaResponse[]> {
+        const query: Record<string, any>[] = this.applyQueryFilter(
+            jurusan,
+            angkatan,
+            semester,
+        );
 
-        if (jurusan) {
-            query.push({
-                jurusan: jurusan,
+        const mahasiswa: Mahasiswa[] =
+            await this.prismaService.mahasiswa.findMany({
+                where: {
+                    AND: query,
+                },
             });
-        }
 
-        if (semester) {
-            query.push({
-                semester: semester,
-            });
-        }
-
-        if (angkatan) {
-            query.push({
-                angkatan: angkatan,
-            });
-        }
-
-        const mhs: Mahasiswa[] = await this.prismaService.mahasiswa.findMany({
-            where: {
-                AND: query,
-            },
-        });
-
-        return mhs;
+        return mahasiswa.map((m) => this.toMahasiswaResponse(m));
     }
 
-    async updateMahasiswa(
+    async update(
         request: UpdateMahasiswaRequest,
         nim: string,
-    ): Promise<MahasiswaRespone> {
-        const isValidOldNim = await this.prismaService.mahasiswa.count({
-            where: {
-                nim: nim,
-            },
-        });
+    ): Promise<MahasiswaResponse> {
+        await this.ensureMahasiswaExistsOrThrow(nim);
 
-        if (!isValidOldNim) {
-            throw new HttpException(
-                'Mahasiswa Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
+        if (nim != request.nim) {
+            await this.ensureMahasiswaNotExistsOrThrow(request.nim);
         }
 
-        const isValidNewNim = await this.prismaService.mahasiswa.count({
-            where: {
-                nim: request.nim,
-            },
-        });
-
-        if (isValidNewNim && nim != request.nim) {
-            throw new HttpException('NIM sudah ada', HttpStatus.CONFLICT);
-        }
-
-        const mhs = await this.prismaService.user.update({
-            where: {
-                id: nim,
-            },
-            data: {
-                id: request.nim,
-                name: request.name,
-                mahasiswa: {
-                    update: {
-                        data: {
-                            name: request.name,
-                            jurusan: request.jurusan,
-                            semester: request.semester,
-                            angkatan: request.angkatan,
+        const userWithMahasiswa: UserWithMahasiswa =
+            await this.prismaService.user.update({
+                where: {
+                    id: nim,
+                },
+                data: {
+                    id: request.nim,
+                    name: request.name,
+                    mahasiswa: {
+                        update: {
+                            data: {
+                                name: request.name,
+                                jurusan: request.jurusan,
+                                semester: request.semester,
+                                angkatan: request.angkatan,
+                            },
                         },
                     },
                 },
-            },
-            include: {
-                mahasiswa: true,
-            },
-        });
+                include: {
+                    mahasiswa: true,
+                },
+            });
 
-        return mhs.mahasiswa!;
+        return this.toMahasiswaResponse(userWithMahasiswa.mahasiswa!);
     }
 
-    async createMahasiswa(
-        request: CreatMahasiswaRequest,
-    ): Promise<MahasiswaRespone> {
-        const count: number = await this.prismaService.mahasiswa.count({
-            where: {
-                nim: request.id,
-            },
-        });
+    async create(request: CreateMahasiswaRequest): Promise<MahasiswaResponse> {
+        await this.ensureMahasiswaNotExistsOrThrow(request.id);
 
-        if (count) {
-            throw new HttpException(
-                'Mahasiswa Sudah Ada',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
+        const userWithMahasiswa: UserWithMahasiswa =
+            await this.createUserWithMahasiswa(request);
 
-        const mhs = await this.prismaService.user.create({
+        return this.toMahasiswaResponse(userWithMahasiswa.mahasiswa!);
+    }
+
+    private async createUserWithMahasiswa(
+        request: CreateMahasiswaRequest,
+    ): Promise<UserWithMahasiswa> {
+        return this.prismaService.user.create({
             data: {
                 id: request.id,
                 name: request.name,
@@ -191,7 +129,75 @@ export class MahasiswaService {
                 mahasiswa: true,
             },
         });
+    }
 
-        return mhs.mahasiswa!;
+    // Validation
+
+    async ensureMahasiswaExistsOrThrow(nim: string): Promise<Mahasiswa> {
+        const mahasiswa: Mahasiswa | null =
+            await this.prismaService.mahasiswa.findUnique({
+                where: {
+                    nim: nim,
+                },
+            });
+
+        if (mahasiswa == null) {
+            throw new NotFoundException('Mahasiswa Tidak Ditemukan');
+        }
+
+        return mahasiswa;
+    }
+
+    async ensureMahasiswaNotExistsOrThrow(nim: string): Promise<void> {
+        const mahasiswa: Mahasiswa | null =
+            await this.prismaService.mahasiswa.findUnique({
+                where: {
+                    nim: nim,
+                },
+            });
+
+        if (mahasiswa) {
+            throw new ConflictException('Mahasiswa Sudah Ada');
+        }
+    }
+
+    // Map
+
+    toMahasiswaResponse(mahasiswa: Mahasiswa): MahasiswaResponse {
+        return {
+            angkatan: mahasiswa.angkatan,
+            jurusan: mahasiswa.jurusan,
+            name: mahasiswa.name,
+            nim: mahasiswa.nim,
+            semester: mahasiswa.semester,
+        };
+    }
+
+    applyQueryFilter(
+        jurusan?: $Enums.Jurusan,
+        angkatan?: string,
+        semester?: number,
+    ): Record<string, any>[] {
+        const query: Record<string, any>[] = [];
+
+        if (jurusan) {
+            query.push({
+                jurusan,
+            });
+        }
+
+        if (semester) {
+            query.push({
+                semester,
+            });
+        }
+
+        if (angkatan) {
+            query.push({
+                angkatan,
+            });
+        }
+
+        return query;
     }
 }
