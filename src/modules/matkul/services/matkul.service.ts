@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateMatkulRequest } from '../dto/create-matkul-request.dto';
-import { UpdateMatkulRequest } from '../dto/update-matkul.dto-request';
+import { CreateMatkulRequest } from '../dto/requet/create-matkul-request.dto';
+import { UpdateMatkulRequest } from '../dto/requet/update-matkul.dto-request';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { Matkul } from '@prisma/client';
-import { MatkulResponse } from '../dto/matkul-reesponse.dto';
+import { MatkulResponse } from '../dto/response/matkul-reesponse.dto';
 
 @Injectable()
 export class MatkulService {

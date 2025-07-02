@@ -11,8 +11,8 @@ import {
     Put,
 } from '@nestjs/common';
 import { MatkulService } from '../services/matkul.service';
-import { CreateMatkulRequest } from '../dto/create-matkul-request.dto';
-import { UpdateMatkulRequest } from '../dto/update-matkul.dto-request';
+import { CreateMatkulRequest } from '../dto/requet/create-matkul-request.dto';
+import { UpdateMatkulRequest } from '../dto/requet/update-matkul.dto-request';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import {
@@ -21,7 +21,7 @@ import {
     ApiCreatedResponse,
     ApiOkResponse,
 } from '@nestjs/swagger';
-import { MatkulResponse } from '../dto/matkul-reesponse.dto';
+import { MatkulResponse } from '../dto/response/matkul-reesponse.dto';
 
 @Controller('matkul')
 export class MatkulController {

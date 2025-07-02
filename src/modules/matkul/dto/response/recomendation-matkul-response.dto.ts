@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MatkulResponse } from './matkul-reesponse.dto';
-import { MatkulRecomendation } from './matkul-recomendation.type';
+import { MatkulRecomendation } from '../types/matkul-recomendation.type';
 
 export class RecomendationMatkulResponse {
     @ApiProperty({
