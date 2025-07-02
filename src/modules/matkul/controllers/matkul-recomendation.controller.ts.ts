@@ -12,10 +12,11 @@ import {
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { RecomendationMatkul } from '../dto/requet/recomendation-matkul.dto';
-import { RecomendationMatkulResponse } from '../dto/response/recomendation-matkul-response.dto';
-import { FindManyRecomendationMatkulRequest } from '../dto/requet/find-many-recomendation-matkul-request.dto';
+import { MatkulRecomendationRequest } from '../dto/requet/recomendation-matkul.dto';
+import { FindAllMatkulRecomendationResponse } from '../dto/response/find-all-recomendation-matkul-response.dto';
+import { FindAllMatkulRecomendationRequest } from '../dto/requet/find-all-recomendation-matkul-request.dto';
 import { MatkulRecomendationService } from '../services/matkul-recomendation.service';
+import { MatkulRecomendationResponse } from '../dto/response/recomendation-matkul-response.dto';
 
 @Controller('matkul/recomendation')
 export class MatkulRecomendationController {
@@ -24,10 +25,10 @@ export class MatkulRecomendationController {
     ) {}
 
     @ApiBody({
-        type: RecomendationMatkul,
+        type: FindAllMatkulRecomendationRequest,
     })
     @ApiOkResponse({
-        type: RecomendationMatkulResponse,
+        type: FindAllMatkulRecomendationResponse,
     })
     @ApiBearerAuth()
     @Get()
@@ -35,8 +36,8 @@ export class MatkulRecomendationController {
     @Roles('admin')
     @UseGuards(JwtGuard)
     findAllRecomendation(
-        @Query() query: FindManyRecomendationMatkulRequest,
-    ): Promise<RecomendationMatkulResponse> {
+        @Query() query: FindAllMatkulRecomendationRequest,
+    ): Promise<FindAllMatkulRecomendationResponse> {
         return this.matkulRecomendationService.findAll(
             query.semester,
             query.jurusan,
@@ -44,10 +45,10 @@ export class MatkulRecomendationController {
     }
 
     @ApiBody({
-        type: RecomendationMatkul,
+        type: MatkulRecomendationRequest,
     })
     @ApiOkResponse({
-        type: RecomendationMatkul,
+        type: MatkulRecomendationResponse,
     })
     @ApiBearerAuth()
     @Post()
@@ -55,13 +56,13 @@ export class MatkulRecomendationController {
     @Roles('admin')
     @UseGuards(JwtGuard)
     addRecomendation(
-        @Body() request: RecomendationMatkul,
-    ): Promise<RecomendationMatkul> {
+        @Body() request: MatkulRecomendationRequest,
+    ): Promise<MatkulRecomendationResponse> {
         return this.matkulRecomendationService.add(request);
     }
 
     @ApiBody({
-        type: RecomendationMatkul,
+        type: MatkulRecomendationRequest,
     })
     @ApiOkResponse({
         type: Boolean,
@@ -73,7 +74,7 @@ export class MatkulRecomendationController {
     @Roles('admin')
     @UseGuards(JwtGuard)
     removeRecomendation(
-        @Body() request: RecomendationMatkul,
+        @Body() request: MatkulRecomendationRequest,
     ): Promise<boolean> {
         return this.matkulRecomendationService.remove(request);
     }

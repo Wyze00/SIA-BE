@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RecomendationMatkulResponse } from './recomendation-matkul-response.dto';
+import { FindAllMatkulRecomendationResponse } from './find-all-recomendation-matkul-response.dto';
 import { MatkulResponse } from './matkul-reesponse.dto';
 
-export class MahasiswaRecomendationMatkulResponse extends RecomendationMatkulResponse {
+export class MatkulMahasiswaRecomendationResponse extends FindAllMatkulRecomendationResponse {
     @ApiProperty({
         type: [MatkulResponse],
     })

@@ -1,15 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { MatkulResponse } from './matkul-reesponse.dto';
-import { MatkulRecomendation } from '../types/matkul-recomendation.type';
+import { MatkulRecomendationRequest } from '../requet/recomendation-matkul.dto';
 
-export class RecomendationMatkulResponse {
-    @ApiProperty({
-        type: [MatkulResponse],
-    })
-    in: MatkulRecomendation;
-
-    @ApiProperty({
-        type: [MatkulResponse],
-    })
-    notIn: MatkulRecomendation;
-}
+export class MatkulRecomendationResponse extends MatkulRecomendationRequest {}

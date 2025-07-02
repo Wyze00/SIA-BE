@@ -3,7 +3,7 @@ import { $Enums } from '@prisma/client';
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsPositive, Max } from 'class-validator';
 
-export class FindManyRecomendationMatkulRequest {
+export class FindAllMatkulRecomendationRequest {
     @ApiProperty({
         enum: $Enums.Jurusan,
         example: 'olb',

@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { $Enums, Matkul, RekomendasiMatkul } from '@prisma/client';
-import { RecomendationMatkul } from '../dto/requet/recomendation-matkul.dto';
+import { MatkulRecomendationRequest } from '../dto/requet/recomendation-matkul.dto';
 import { RawMatkulRecomendation } from '../dto/types/raw-recomendation.type';
 import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulIncludeDosen } from '../dto/types/matkul-include-dosen.type';
-import { RecomendationMatkulResponse } from '../dto/response/recomendation-matkul-response.dto';
+import { FindAllMatkulRecomendationResponse } from '../dto/response/find-all-recomendation-matkul-response.dto';
+import { MatkulRecomendationResponse } from '../dto/response/recomendation-matkul-response.dto';
 
 @Injectable()
 export class MatkulRecomendationService {
@@ -30,7 +31,7 @@ export class MatkulRecomendationService {
     }
 
     async ensureRecomendationMatkulNotExist(
-        request: RecomendationMatkul,
+        request: MatkulRecomendationRequest,
     ): Promise<void> {
         const matkulRecomendation: RekomendasiMatkul | null =
             await this.prismaService.rekomendasiMatkul.findUnique({
@@ -48,7 +49,7 @@ export class MatkulRecomendationService {
     }
 
     async ensureRecomendationMatkulExist(
-        request: RecomendationMatkul,
+        request: MatkulRecomendationRequest,
     ): Promise<void> {
         const matkulRecomendation: RekomendasiMatkul | null =
             await this.prismaService.rekomendasiMatkul.findUnique({
@@ -74,7 +75,7 @@ export class MatkulRecomendationService {
         }
     }
 
-    // Core
+    // Logic
 
     async getInRecomendation(
         semester: number,
@@ -146,13 +147,15 @@ export class MatkulRecomendationService {
 
     // Core
 
-    async add(request: RecomendationMatkul): Promise<RecomendationMatkul> {
+    async add(
+        request: MatkulRecomendationRequest,
+    ): Promise<MatkulRecomendationResponse> {
         await this.ensureMatkulExists(request.kode_matkul);
         await this.ensureRecomendationMatkulNotExist(request);
         return await this.create(request);
     }
 
-    async remove(request: RecomendationMatkul): Promise<boolean> {
+    async remove(request: MatkulRecomendationRequest): Promise<boolean> {
         console.log('hadir');
         await this.ensureMatkulExists(request.kode_matkul);
         await this.ensureRecomendationMatkulExist(request);
@@ -162,7 +165,7 @@ export class MatkulRecomendationService {
     async findAll(
         semester: number,
         jurusan: $Enums.Jurusan,
-    ): Promise<RecomendationMatkulResponse> {
+    ): Promise<FindAllMatkulRecomendationResponse> {
         this.validateSemester(semester);
 
         const inRecomendation = await this.getInRecomendation(
@@ -180,7 +183,9 @@ export class MatkulRecomendationService {
 
     // CRUD
 
-    async create(data: RecomendationMatkul): Promise<RecomendationMatkul> {
+    async create(
+        data: MatkulRecomendationRequest,
+    ): Promise<MatkulRecomendationRequest> {
         const matkul: RekomendasiMatkul =
             await this.prismaService.rekomendasiMatkul.create({
                 data,
@@ -189,7 +194,7 @@ export class MatkulRecomendationService {
         return matkul;
     }
 
-    async delete(data: RecomendationMatkul): Promise<boolean> {
+    async delete(data: MatkulRecomendationRequest): Promise<boolean> {
         await this.prismaService.rekomendasiMatkul.deleteMany({
             where: data,
         });

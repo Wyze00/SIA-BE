@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { CreateDosenRequest } from './dto/create-dosen-request.dto';
 import { DosenResponse } from './dto/dosen-response.dto';
@@ -152,5 +157,19 @@ export class DosenService {
         ]);
 
         return true;
+    }
+
+    async ensureDosenExistsOrThrow(nip: string): Promise<Dosen> {
+        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
+            where: {
+                nip,
+            },
+        });
+
+        if (dosen == null) {
+            throw new NotFoundException('Dosen Tidak Ditemukan');
+        }
+
+        return dosen;
     }
 }

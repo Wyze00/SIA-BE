@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, Length } from 'class-validator';
-import { FindManyRecomendationMatkulRequest } from './find-many-recomendation-matkul-request.dto';
+import { FindAllMatkulRecomendationRequest } from './find-all-recomendation-matkul-request.dto';
 
-export class RecomendationMatkul extends FindManyRecomendationMatkulRequest {
+export class MatkulRecomendationRequest extends FindAllMatkulRecomendationRequest {
     @ApiProperty({
         type: String,
         example: 'IF-101',
