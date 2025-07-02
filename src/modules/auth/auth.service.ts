@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { LoginUserRequest } from './dto/login-user-request.dto';
@@ -14,30 +14,8 @@ export class AuthService {
     ) {}
 
     async login(request: LoginUserRequest): Promise<LoginUserResponse> {
-        const user: User | null = await this.prismaService.user.findUnique({
-            where: {
-                id: request.id,
-            },
-        });
-
-        if (!user) {
-            throw new HttpException(
-                'Username atau Password Salah',
-                HttpStatus.NOT_FOUND,
-            );
-        }
-
-        const isPasswordValid: boolean = await bcrypt.compare(
-            request.password,
-            user.password,
-        );
-
-        if (!isPasswordValid) {
-            throw new HttpException(
-                'Username atau Password Salah',
-                HttpStatus.NOT_FOUND,
-            );
-        }
+        const user: User = await this.ensureUserExists(request.id);
+        await this.ensurePasswordValid(request.password, user.password);
 
         const token = this.jwtService.sign({
             id: user.id,
@@ -50,5 +28,27 @@ export class AuthService {
             role: user.role,
             token: token,
         };
+    }
+
+    async ensureUserExists(id: string): Promise<User> {
+        const user: User | null = await this.prismaService.user.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (user == null) {
+            throw new BadRequestException('Username Atau Password Salah');
+        }
+
+        return user;
+    }
+
+    async ensurePasswordValid(password: string, hash: string): Promise<void> {
+        const isPasswordValid: boolean = await bcrypt.compare(password, hash);
+
+        if (isPasswordValid == false) {
+            throw new BadRequestException('Username Atau Password Salah');
+        }
     }
 }

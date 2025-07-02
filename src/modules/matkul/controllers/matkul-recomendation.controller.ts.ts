@@ -35,7 +35,7 @@ export class MatkulRecomendationController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    findAllRecomendation(
+    findAll(
         @Query() query: FindAllMatkulRecomendationRequest,
     ): Promise<FindAllMatkulRecomendationResponse> {
         return this.matkulRecomendationService.findAll(
@@ -55,7 +55,7 @@ export class MatkulRecomendationController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    addRecomendation(
+    add(
         @Body() request: MatkulRecomendationRequest,
     ): Promise<MatkulRecomendationResponse> {
         return this.matkulRecomendationService.add(request);
@@ -73,9 +73,7 @@ export class MatkulRecomendationController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    removeRecomendation(
-        @Body() request: MatkulRecomendationRequest,
-    ): Promise<boolean> {
+    remove(@Body() request: MatkulRecomendationRequest): Promise<boolean> {
         return this.matkulRecomendationService.remove(request);
     }
 }
