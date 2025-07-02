@@ -5,5 +5,6 @@ import { MahasiswaService } from './mahasiswa.service';
 @Module({
     controllers: [MahasiswaController],
     providers: [MahasiswaService],
+    exports: [MahasiswaService],
 })
 export class MahasiswaModule {}

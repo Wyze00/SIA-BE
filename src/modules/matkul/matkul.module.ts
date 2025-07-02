@@ -6,9 +6,10 @@ import { MatkulRecomendationService } from './services/matkul-recomendation.serv
 import { DosenModule } from '../dosen/dosen.module';
 import { MatkulRecomendationMahasiswaController } from './controllers/matkul-recomendation-mahasiswa.controller';
 import { MatkulRecomendationMahasiswaService } from './services/matkul-recomendation-mahasiswa.service';
+import { MahasiswaModule } from '../mahasiswa/mahasiswa.module';
 
 @Module({
-    imports: [DosenModule],
+    imports: [DosenModule, MahasiswaModule],
     controllers: [
         MatkulRecomendationController,
         MatkulRecomendationMahasiswaController,
