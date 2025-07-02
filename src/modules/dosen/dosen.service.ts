@@ -1,6 +1,5 @@
 import {
-    HttpException,
-    HttpStatus,
+    ConflictException,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
@@ -10,138 +9,67 @@ import { DosenResponse } from './dto/dosen-response.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateDosenRequest } from './dto/update-dosen-request.dto';
 import { Dosen } from '@prisma/client';
+import { UserWithDosen } from './dto/types/user-with-dosen.type';
 
 @Injectable()
 export class DosenService {
     constructor(private readonly prismaService: PrismaService) {}
 
-    async createDosen(request: CreateDosenRequest): Promise<DosenResponse> {
-        const count: number = await this.prismaService.dosen.count({
-            where: {
-                nip: request.id,
-            },
-        });
+    async create(request: CreateDosenRequest): Promise<DosenResponse> {
+        await this.ensureDosenNotExistsOrThrow(request.id);
 
-        if (count) {
-            throw new HttpException('Dosen Sudah Ada', HttpStatus.BAD_REQUEST);
-        }
+        const userWithDosen: UserWithDosen =
+            await this.createUserWithDosen(request);
 
-        const dosen = await this.prismaService.user.create({
-            data: {
-                id: request.id,
-                name: request.name,
-                role: 'dosen',
-                password: await bcrypt.hash(request.password, 10),
-                dosen: {
-                    create: {
-                        name: request.name,
-                    },
-                },
-            },
-            include: {
-                dosen: true,
-            },
-        });
-
-        return dosen.dosen!;
+        return this.toDosenResponse(userWithDosen.dosen!);
     }
 
-    async updateDosen(
+    async update(
         nip: string,
         request: UpdateDosenRequest,
     ): Promise<DosenResponse> {
-        const isValidOldNip = await this.prismaService.dosen.count({
-            where: {
-                nip: nip,
-            },
-        });
+        await this.ensureDosenExistsOrThrow(nip);
 
-        if (!isValidOldNip) {
-            throw new HttpException(
-                'Mahasiswa Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
+        if (nip != request.nip) {
+            await this.ensureDosenNotExistsOrThrow(nip);
         }
 
-        const isValidNewNip = await this.prismaService.dosen.count({
-            where: {
-                nip: request.nip,
-            },
-        });
-
-        if (isValidNewNip && nip != request.nip) {
-            throw new HttpException('NIP sudah ada', HttpStatus.CONFLICT);
-        }
-
-        const dosen = await this.prismaService.user.update({
-            where: {
-                id: nip,
-            },
-            data: {
-                id: request.nip,
-                name: request.name,
-                dosen: {
-                    update: {
-                        data: {
-                            name: request.name,
+        const userWithDosen: UserWithDosen =
+            await this.prismaService.user.update({
+                where: {
+                    id: nip,
+                },
+                data: {
+                    id: request.nip,
+                    name: request.name,
+                    dosen: {
+                        update: {
+                            data: {
+                                name: request.name,
+                            },
                         },
                     },
                 },
-            },
-            include: {
-                dosen: true,
-            },
-        });
+                include: {
+                    dosen: true,
+                },
+            });
 
-        return dosen.dosen!;
+        return this.toDosenResponse(userWithDosen.dosen!);
     }
 
-    async findDosen(nip: string): Promise<DosenResponse> {
-        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
-            where: {
-                nip: nip,
-            },
-        });
-
-        return dosen!;
+    async findOne(nip: string): Promise<DosenResponse> {
+        const dosen: Dosen = await this.ensureDosenExistsOrThrow(nip);
+        return this.toDosenResponse(dosen);
     }
 
-    async findDosenByNip(nip: string): Promise<DosenResponse> {
-        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
-            where: {
-                nip: nip,
-            },
-        });
-
-        if (!dosen) {
-            throw new HttpException(
-                'Dosen Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
-        }
-
-        return dosen;
-    }
-
-    async findManyDosen(): Promise<DosenResponse[]> {
+    async findAll(): Promise<DosenResponse[]> {
         const dosen: Dosen[] = await this.prismaService.dosen.findMany();
-
-        return dosen;
+        return dosen.map((d) => this.toDosenResponse(d));
     }
 
-    async deleteDosen(nip: string): Promise<boolean> {
-        const count = await this.prismaService.dosen.count({
-            where: {
-                nip: nip,
-            },
-        });
-
-        if (!count) {
-            throw new HttpException(
-                'Mahasiswa Tidak Ditemukan',
-                HttpStatus.NOT_FOUND,
-            );
-        }
+    async remove(nip: string): Promise<void> {
+        await this.ensureDosenExistsOrThrow(nip);
 
         await this.prismaService.$transaction([
             this.prismaService.dosen.delete({
@@ -155,9 +83,33 @@ export class DosenService {
                 },
             }),
         ]);
-
-        return true;
     }
+
+    async createUserWithDosen(
+        request: CreateDosenRequest,
+    ): Promise<UserWithDosen> {
+        const userWithDosen: UserWithDosen =
+            await this.prismaService.user.create({
+                data: {
+                    id: request.id,
+                    name: request.name,
+                    role: 'dosen',
+                    password: await bcrypt.hash(request.password, 10),
+                    dosen: {
+                        create: {
+                            name: request.name,
+                        },
+                    },
+                },
+                include: {
+                    dosen: true,
+                },
+            });
+
+        return userWithDosen;
+    }
+
+    // Validaion
 
     async ensureDosenExistsOrThrow(nip: string): Promise<Dosen> {
         const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
@@ -171,5 +123,26 @@ export class DosenService {
         }
 
         return dosen;
+    }
+
+    async ensureDosenNotExistsOrThrow(nip: string): Promise<void> {
+        const dosen: Dosen | null = await this.prismaService.dosen.findUnique({
+            where: {
+                nip,
+            },
+        });
+
+        if (dosen) {
+            throw new ConflictException('Dosen Sudah Ada');
+        }
+    }
+
+    // Mapper
+
+    toDosenResponse(dosen: Dosen): DosenResponse {
+        return {
+            name: dosen.name,
+            nip: dosen.nip,
+        };
     }
 }

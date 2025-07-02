@@ -40,10 +40,8 @@ export class DosenController {
     @HttpCode(HttpStatus.CREATED)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async createDosen(
-        @Body() request: CreateDosenRequest,
-    ): Promise<DosenResponse> {
-        return await this.dosenService.createDosen(request);
+    async create(@Body() request: CreateDosenRequest): Promise<DosenResponse> {
+        return await this.dosenService.create(request);
     }
 
     @ApiBody({
@@ -57,11 +55,11 @@ export class DosenController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async updateDosen(
+    async update(
         @Param('nip') nip: string,
         @Body() request: UpdateDosenRequest,
     ): Promise<DosenResponse> {
-        return await this.dosenService.updateDosen(nip, request);
+        return await this.dosenService.update(nip, request);
     }
 
     @ApiOkResponse({
@@ -72,8 +70,8 @@ export class DosenController {
     @HttpCode(HttpStatus.OK)
     @Roles('dosen')
     @UseGuards(JwtGuard)
-    async findDosen(@User() user: UserRole): Promise<DosenResponse> {
-        return await this.dosenService.findDosen(user.id);
+    async findOne(@User() user: UserRole): Promise<DosenResponse> {
+        return await this.dosenService.findOne(user.id);
     }
 
     @ApiOkResponse({
@@ -84,8 +82,8 @@ export class DosenController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async findManyDosen(): Promise<DosenResponse[]> {
-        return await this.dosenService.findManyDosen();
+    async findAll(): Promise<DosenResponse[]> {
+        return await this.dosenService.findAll();
     }
 
     @ApiOkResponse({
@@ -96,20 +94,16 @@ export class DosenController {
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async findDosenByNip(@Param('nip') nip: string): Promise<DosenResponse> {
-        return await this.dosenService.findDosenByNip(nip);
+    async findOneWithNip(@Param('nip') nip: string): Promise<DosenResponse> {
+        return await this.dosenService.findOne(nip);
     }
 
-    @ApiOkResponse({
-        type: Boolean,
-        example: true,
-    })
     @ApiBearerAuth()
     @Delete('/:nip')
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    async deleteDosen(@Param('nip') nip: string): Promise<boolean> {
-        return await this.dosenService.deleteDosen(nip);
+    async remove(@Param('nip') nip: string): Promise<void> {
+        return await this.dosenService.remove(nip);
     }
 }
