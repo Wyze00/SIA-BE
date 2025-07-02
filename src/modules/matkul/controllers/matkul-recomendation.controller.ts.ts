@@ -37,7 +37,7 @@ export class MatkulRecomendationController {
     findAllRecomendation(
         @Query() query: FindManyRecomendationMatkulRequest,
     ): Promise<RecomendationMatkulResponse> {
-        return this.matkulRecomendationService.findAllRecomendation(
+        return this.matkulRecomendationService.findAll(
             query.semester,
             query.jurusan,
         );
@@ -57,7 +57,7 @@ export class MatkulRecomendationController {
     addRecomendation(
         @Body() request: RecomendationMatkul,
     ): Promise<RecomendationMatkul> {
-        return this.matkulRecomendationService.addRecomendation(request);
+        return this.matkulRecomendationService.add(request);
     }
 
     @ApiBody({
@@ -75,6 +75,6 @@ export class MatkulRecomendationController {
     removeRecomendation(
         @Body() request: RecomendationMatkul,
     ): Promise<boolean> {
-        return this.matkulRecomendationService.removeRecomendation(request);
+        return this.matkulRecomendationService.remove(request);
     }
 }

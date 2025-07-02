@@ -5,7 +5,7 @@ import { MatkulRecomendationController } from './controllers/matkul-recomendatio
 import { MatkulRecomendationService } from './services/matkul-recomendation.service';
 
 @Module({
-    controllers: [MatkulController, MatkulRecomendationController],
+    controllers: [MatkulRecomendationController, MatkulController],
     providers: [MatkulService, MatkulRecomendationService],
 })
 export class MatkulModule {}
