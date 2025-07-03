@@ -150,6 +150,33 @@ export class MatkulRecomendationMahasiswaService {
         await this.matkulNilaiMahasiswaService.init(nim, semester, kode_matkul);
     }
 
+    async remove(nim: string, semester: number, kode_matkul: string) {
+        await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
+        await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
+
+        await this.matkulAbsenMahasiswaService.removeAll(
+            nim,
+            semester,
+            kode_matkul,
+        );
+
+        await this.matkulNilaiMahasiswaService.removeAll(
+            nim,
+            semester,
+            kode_matkul,
+        );
+
+        await this.prismaService.mhsMengambilMatkul.delete({
+            where: {
+                kode_matkul_nim_semester: {
+                    kode_matkul,
+                    nim,
+                    semester,
+                },
+            },
+        });
+    }
+
     // Format
 
     formatMhsMengambilMatkulWithMakulAndDosen(

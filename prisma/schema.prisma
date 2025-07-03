@@ -134,7 +134,7 @@ model MhsMengabsenMatkul {
   matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
 
-  @@id([kode_matkul, nim, semester])
+  @@id([kode_matkul, nim, semester, pertemuan])
   @@map("mahasiswa_absen_matkul")
 }
 
@@ -149,7 +149,7 @@ model MhsNilaiMatkul {
   matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
 
-  @@id([kode_matkul, nim, semester])
+  @@id([kode_matkul, nim, semester, tipe])
   @@map("mahasiswa_nilai_matkul")
 }
 

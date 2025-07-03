@@ -1,5 +1,6 @@
 import {
     Controller,
+    Delete,
     Get,
     HttpCode,
     HttpStatus,
@@ -14,6 +15,7 @@ import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
 import { MatkulRecomendationMahasiswaRequest } from '../dto/request/matkul-recomendation-mahasiswa-request.dto';
 import { UpdateMatkulRecomendationMahasiswaRequest } from '../dto/request/update-matkul-recomendation-mahasiswa-request.dto';
+import { DeleteMatkulRecomendationMahasiswaRequest } from '../dto/request/delete-matkul-recomendation-mahasiswa-request.dto';
 
 @Controller('matkul/recomendation/mahasiswa')
 export class MatkulRecomendationMahasiswaController {
@@ -53,19 +55,18 @@ export class MatkulRecomendationMahasiswaController {
         );
     }
 
-    // @ApiBody({
-    //     type: MatkulRecomendationRequest,
-    // })
-    // @ApiOkResponse({
-    //     type: Boolean,
-    //     example: true,
-    // })
-    // @ApiBearerAuth()
-    // @Delete()
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // remove(@Body() request: MatkulRecomendationRequest): Promise<boolean> {
-    //     return this.matkulRecomendationService.remove(request);
-    // }
+    @ApiBearerAuth()
+    @HttpCode(HttpStatus.OK)
+    @Delete(':nim/:semester/:kode_matkul')
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    remove(
+        @Param() param: DeleteMatkulRecomendationMahasiswaRequest,
+    ): Promise<void> {
+        return this.matkulRecomendationMahasiswaService.remove(
+            param.nim,
+            param.semester,
+            param.kode_matkul,
+        );
+    }
 }

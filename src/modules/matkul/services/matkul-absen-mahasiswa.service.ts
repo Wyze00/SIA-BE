@@ -23,4 +23,14 @@ export class MatkulAbsenMahasiswaService {
             });
         }
     }
+
+    async removeAll(nim: string, semester: number, kode_matkul: string) {
+        await this.prismaService.mhsMengabsenMatkul.deleteMany({
+            where: {
+                nim,
+                semester,
+                kode_matkul,
+            },
+        });
+    }
 }
