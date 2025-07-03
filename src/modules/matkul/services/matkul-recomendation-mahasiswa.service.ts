@@ -3,10 +3,12 @@ import { PrismaService } from 'src/common/provider/prisma.service';
 import { MahasiswaService } from 'src/modules/mahasiswa/mahasiswa.service';
 import { MhsMengambilMatkulWithMatkulAndDosen } from '../dto/types/mhsMengambilMatkul-with-matkul-and-dosen.type';
 import { Mahasiswa } from '@prisma/client';
-import { RawMatkulRecomendation } from '../dto/types/raw-recomendation.type';
+import { MatkulRecomendationWithMatkulAndDosen } from '../dto/types/raw-recomendation.type';
 import { MatkulRecomendationService } from './matkul-recomendation.service';
 import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
+import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
+import { MatkulService } from './matkul.service';
 
 @Injectable()
 export class MatkulRecomendationMahasiswaService {
@@ -14,16 +16,16 @@ export class MatkulRecomendationMahasiswaService {
         private readonly prismaService: PrismaService,
         private readonly mahasiswaService: MahasiswaService,
         private readonly matkulRecomendationService: MatkulRecomendationService,
+        private readonly matkulService: MatkulService,
     ) {}
 
-    async findAll(
+    // CRUD
+
+    async getMhsMengambilMaktulWithMatkulAndDosen(
         nim: string,
         semester: number,
-    ): Promise<MatkulRecomendationMahasiswaResponse> {
-        const mahasiswa: Mahasiswa =
-            await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
-
-        const rawMhsMengambilMatkul: MhsMengambilMatkulWithMatkulAndDosen[] =
+    ): Promise<MhsMengambilMatkulWithMatkulAndDosen[]> {
+        const mhsMengambilMatkul: MhsMengambilMatkulWithMatkulAndDosen[] =
             await this.prismaService.mhsMengambilMatkul.findMany({
                 where: {
                     nim,
@@ -38,85 +40,59 @@ export class MatkulRecomendationMahasiswaService {
                 },
             });
 
-        const formatMhsMengambilMatkul: MatkulRecomendation =
-            this.formatRawMhsMengambilMatkulWithMakulAndDosen(
+        return mhsMengambilMatkul;
+    }
+
+    async findAll(
+        nim: string,
+        semester: number,
+    ): Promise<MatkulRecomendationMahasiswaResponse> {
+        const mahasiswa: Mahasiswa =
+            await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
+
+        const rawMhsMengambilMatkul: MhsMengambilMatkulWithMatkulAndDosen[] =
+            await this.getMhsMengambilMaktulWithMatkulAndDosen(
+                mahasiswa.nim,
+                semester,
+            );
+
+        const inRecomendation: MatkulRecomendation =
+            this.formatMhsMengambilMatkulWithMakulAndDosen(
                 rawMhsMengambilMatkul,
             );
 
-        const allKode = formatMhsMengambilMatkul.map((f) => f.kode_matkul);
+        const allKode = inRecomendation.map((f) => f.kode_matkul);
 
-        const rawMatkulRecomendation: RawMatkulRecomendation =
-            await this.prismaService.rekomendasiMatkul.findMany({
-                where: {
-                    AND: [
-                        {
-                            jurusan: mahasiswa.jurusan,
-                        },
-                        {
-                            semester,
-                        },
-                        {
-                            kode_matkul: {
-                                notIn: allKode,
-                            },
-                        },
-                    ],
-                },
-                include: {
-                    matkul: {
-                        include: {
-                            dosen: true,
-                        },
-                    },
-                },
-            });
+        const rawMatkulRecomendation: MatkulRecomendationWithMatkulAndDosen[] =
+            await this.matkulRecomendationService.getMaktulRecomendationWithMatkulAndDosenBySemesterAndJurusanAndNotInKodeMatkul(
+                semester,
+                mahasiswa.jurusan,
+                allKode,
+            );
 
         const formated =
-            this.matkulRecomendationService.formatRawMatkulRecomendation(
+            this.matkulRecomendationService.formatMatkulRecomendationWithMatkulAndDosen(
                 rawMatkulRecomendation,
             );
 
         const allKode2 = allKode.concat(formated.map((f) => f.kode_matkul));
 
-        const allMatkul: RawMatkulRecomendation =
-            await this.prismaService.rekomendasiMatkul.findMany({
-                where: {
-                    AND: [
-                        {
-                            jurusan: mahasiswa.jurusan,
-                        },
-                        {
-                            semester,
-                        },
-                        {
-                            kode_matkul: {
-                                notIn: allKode2,
-                            },
-                        },
-                    ],
-                },
-                include: {
-                    matkul: {
-                        include: {
-                            dosen: true,
-                        },
-                    },
-                },
-            });
-
-        const formated2 =
-            this.matkulRecomendationService.formatRawMatkulRecomendation(
-                allMatkul,
+        const matkuls: MatkulWithDosen[] =
+            await this.matkulService.getMatkulWithDosenByNotInKodeMakul(
+                allKode2,
             );
 
+        const formated2 =
+            this.matkulRecomendationService.formatMatkulWithDosen(matkuls);
+
         return {
-            in: formatMhsMengambilMatkul,
+            in: inRecomendation,
             notIn: formated,
             all: formated2,
         };
     }
 
-    formatRawMhsMengambilMatkulWithMakulAndDosen(
+    formatMhsMengambilMatkulWithMakulAndDosen(
         raw: MhsMengambilMatkulWithMatkulAndDosen[],
     ): MatkulRecomendation {
         return raw.map((r) => {

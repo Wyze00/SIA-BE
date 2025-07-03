@@ -2,15 +2,139 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { $Enums, Matkul, RekomendasiMatkul } from '@prisma/client';
 import { MatkulRecomendationRequest } from '../dto/requet/recomendation-matkul.dto';
-import { RawMatkulRecomendation } from '../dto/types/raw-recomendation.type';
+import { MatkulRecomendationWithMatkulAndDosen } from '../dto/types/raw-recomendation.type';
 import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
-import { MatkulIncludeDosen } from '../dto/types/matkul-include-dosen.type';
+import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { FindAllMatkulRecomendationResponse } from '../dto/response/find-all-recomendation-matkul-response.dto';
 import { MatkulRecomendationResponse } from '../dto/response/recomendation-matkul-response.dto';
+import { MatkulService } from './matkul.service';
 
 @Injectable()
 export class MatkulRecomendationService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly matkulService: MatkulService,
+    ) {}
+
+    // Core
+
+    async add(
+        request: MatkulRecomendationRequest,
+    ): Promise<MatkulRecomendationResponse> {
+        await this.ensureMatkulExists(request.kode_matkul);
+        await this.ensureRecomendationMatkulNotExist(request);
+        return await this.prismaService.rekomendasiMatkul.create({
+            data: request,
+        });
+    }
+
+    async remove(request: MatkulRecomendationRequest): Promise<void> {
+        await this.ensureMatkulExists(request.kode_matkul);
+        await this.ensureRecomendationMatkulExist(request);
+        await this.prismaService.rekomendasiMatkul.deleteMany({
+            where: request,
+        });
+    }
+
+    async findAll(
+        semester: number,
+        jurusan: $Enums.Jurusan,
+    ): Promise<FindAllMatkulRecomendationResponse> {
+        this.validateSemester(semester);
+
+        const inRecomendation = await this.getInRecomendation(
+            semester,
+            jurusan,
+        );
+        const notInRecomendation =
+            await this.getNotInRecomendation(inRecomendation);
+
+        return {
+            in: inRecomendation,
+            notIn: notInRecomendation,
+        };
+    }
+
+    // CRUD
+
+    async getMaktulRecomendationWithMatkulAndDosenBySemesterAndJurusan(
+        semester: number,
+        jurusan: $Enums.Jurusan,
+    ): Promise<MatkulRecomendationWithMatkulAndDosen[]> {
+        const rawRecomendation: MatkulRecomendationWithMatkulAndDosen[] =
+            await this.prismaService.rekomendasiMatkul.findMany({
+                where: { semester, jurusan },
+                include: {
+                    matkul: {
+                        include: {
+                            dosen: true,
+                        },
+                    },
+                },
+            });
+
+        return rawRecomendation;
+    }
+
+    async getMaktulRecomendationWithMatkulAndDosenBySemesterAndJurusanAndNotInKodeMatkul(
+        semester: number,
+        jurusan: $Enums.Jurusan,
+        kode_matkul: string[],
+    ): Promise<MatkulRecomendationWithMatkulAndDosen[]> {
+        return await this.prismaService.rekomendasiMatkul.findMany({
+            where: {
+                AND: [
+                    {
+                        jurusan: jurusan,
+                    },
+                    {
+                        semester,
+                    },
+                    {
+                        kode_matkul: {
+                            notIn: kode_matkul,
+                        },
+                    },
+                ],
+            },
+            include: {
+                matkul: {
+                    include: {
+                        dosen: true,
+                    },
+                },
+            },
+        });
+    }
+
+    // Logic
+
+    async getInRecomendation(
+        semester: number,
+        jurusan: $Enums.Jurusan,
+    ): Promise<MatkulRecomendation> {
+        const rawMatkulRecomendation: MatkulRecomendationWithMatkulAndDosen[] =
+            await this.getMaktulRecomendationWithMatkulAndDosenBySemesterAndJurusan(
+                semester,
+                jurusan,
+            );
+        return this.formatMatkulRecomendationWithMatkulAndDosen(
+            rawMatkulRecomendation,
+        );
+    }
+
+    async getNotInRecomendation(
+        matkulRecomendation: MatkulRecomendation,
+    ): Promise<MatkulRecomendation> {
+        const allMatkulIncludeDosen: MatkulWithDosen[] =
+            await this.matkulService.getMatkulWithDosen();
+        const filteredMatkulIncludeDosen: MatkulWithDosen[] =
+            this.filterMatkulIncludeDosenByMatkulRecomendation(
+                allMatkulIncludeDosen,
+                matkulRecomendation,
+            );
+        return this.formatMatkulWithDosen(filteredMatkulIncludeDosen);
+    }
 
     // Validation
 
@@ -75,36 +199,12 @@ export class MatkulRecomendationService {
         }
     }
 
-    // Logic
-
-    async getInRecomendation(
-        semester: number,
-        jurusan: $Enums.Jurusan,
-    ): Promise<MatkulRecomendation> {
-        const rawMatkulRecomendation: RawMatkulRecomendation =
-            await this.getRawMatkulRecomendation(semester, jurusan);
-        return this.formatRawMatkulRecomendation(rawMatkulRecomendation);
-    }
-
-    async getNotInRecomendation(
-        matkulRecomendation: MatkulRecomendation,
-    ): Promise<MatkulRecomendation> {
-        const allMatkulIncludeDosen: MatkulIncludeDosen[] =
-            await this.getAllMatkulIncludeDosen();
-        const filteredMatkulIncludeDosen: MatkulIncludeDosen[] =
-            this.filterAllMatkulIncludeDosen(
-                allMatkulIncludeDosen,
-                matkulRecomendation,
-            );
-        return this.formatAllMatkulIncludeDosen(filteredMatkulIncludeDosen);
-    }
-
     // Filter & Formatting
 
-    filterAllMatkulIncludeDosen(
-        matkulIncludeDosen: MatkulIncludeDosen[],
+    filterMatkulIncludeDosenByMatkulRecomendation(
+        matkulIncludeDosen: MatkulWithDosen[],
         matkulRecomendation: MatkulRecomendation,
-    ): MatkulIncludeDosen[] {
+    ): MatkulWithDosen[] {
         return matkulIncludeDosen.filter(
             (matkul) =>
                 !matkulRecomendation.find(
@@ -113,8 +213,8 @@ export class MatkulRecomendationService {
         );
     }
 
-    formatAllMatkulIncludeDosen(
-        matkulIncludeDosen: MatkulIncludeDosen[],
+    formatMatkulWithDosen(
+        matkulIncludeDosen: MatkulWithDosen[],
     ): MatkulRecomendation {
         return matkulIncludeDosen.map((m) => ({
             kode_matkul: m.kode_matkul,
@@ -126,8 +226,8 @@ export class MatkulRecomendationService {
         }));
     }
 
-    formatRawMatkulRecomendation(
-        rawMatkulRecomendation: RawMatkulRecomendation,
+    formatMatkulRecomendationWithMatkulAndDosen(
+        rawMatkulRecomendation: MatkulRecomendationWithMatkulAndDosen[],
     ): MatkulRecomendation {
         const matkulRecomendation: MatkulRecomendation =
             rawMatkulRecomendation.map((r) => {
@@ -143,90 +243,5 @@ export class MatkulRecomendationService {
             });
 
         return matkulRecomendation;
-    }
-
-    // Core
-
-    async add(
-        request: MatkulRecomendationRequest,
-    ): Promise<MatkulRecomendationResponse> {
-        await this.ensureMatkulExists(request.kode_matkul);
-        await this.ensureRecomendationMatkulNotExist(request);
-        return await this.create(request);
-    }
-
-    async remove(request: MatkulRecomendationRequest): Promise<boolean> {
-        console.log('hadir');
-        await this.ensureMatkulExists(request.kode_matkul);
-        await this.ensureRecomendationMatkulExist(request);
-        return await this.delete(request);
-    }
-
-    async findAll(
-        semester: number,
-        jurusan: $Enums.Jurusan,
-    ): Promise<FindAllMatkulRecomendationResponse> {
-        this.validateSemester(semester);
-
-        const inRecomendation = await this.getInRecomendation(
-            semester,
-            jurusan,
-        );
-        const notInRecomendation =
-            await this.getNotInRecomendation(inRecomendation);
-
-        return {
-            in: inRecomendation,
-            notIn: notInRecomendation,
-        };
-    }
-
-    // CRUD
-
-    async create(
-        data: MatkulRecomendationRequest,
-    ): Promise<MatkulRecomendationRequest> {
-        const matkul: RekomendasiMatkul =
-            await this.prismaService.rekomendasiMatkul.create({
-                data,
-            });
-
-        return matkul;
-    }
-
-    async delete(data: MatkulRecomendationRequest): Promise<boolean> {
-        await this.prismaService.rekomendasiMatkul.deleteMany({
-            where: data,
-        });
-
-        return true;
-    }
-
-    async getRawMatkulRecomendation(
-        semester: number,
-        jurusan: $Enums.Jurusan,
-    ): Promise<RawMatkulRecomendation> {
-        const rawRecomendation: RawMatkulRecomendation =
-            await this.prismaService.rekomendasiMatkul.findMany({
-                where: { semester, jurusan },
-                include: {
-                    matkul: {
-                        include: {
-                            dosen: true,
-                        },
-                    },
-                },
-            });
-
-        return rawRecomendation;
-    }
-
-    async getAllMatkulIncludeDosen(): Promise<MatkulIncludeDosen[]> {
-        const matkulAndDosen: MatkulIncludeDosen[] =
-            await this.prismaService.matkul.findMany({
-                include: { dosen: true },
-            });
-
-        return matkulAndDosen;
     }
 }

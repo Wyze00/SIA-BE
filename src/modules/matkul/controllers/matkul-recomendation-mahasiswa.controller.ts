@@ -28,8 +28,8 @@ export class MatkulRecomendationMahasiswaController {
     @Roles('admin')
     @UseGuards(JwtGuard)
     findAll(
-        @Query('nim') nim: string,
-        @Param('semster', ParseIntPipe) semester: number,
+        @Param('nim') nim: string,
+        @Query('semester', ParseIntPipe) semester: number,
     ): Promise<MatkulRecomendationMahasiswaResponse> {
         return this.matkulRecomendationMahasiswaService.findAll(nim, semester);
     }

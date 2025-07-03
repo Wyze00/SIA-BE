@@ -64,16 +64,12 @@ export class MatkulRecomendationController {
     @ApiBody({
         type: MatkulRecomendationRequest,
     })
-    @ApiOkResponse({
-        type: Boolean,
-        example: true,
-    })
     @ApiBearerAuth()
     @Delete()
-    @HttpCode(HttpStatus.OK)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Roles('admin')
     @UseGuards(JwtGuard)
-    remove(@Body() request: MatkulRecomendationRequest): Promise<boolean> {
+    remove(@Body() request: MatkulRecomendationRequest): Promise<void> {
         return this.matkulRecomendationService.remove(request);
     }
 }
