@@ -12,9 +12,9 @@ import {
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
-import { MatkulRecomendationRequest } from '../dto/requet/recomendation-matkul.dto';
+import { MatkulRecomendationRequest } from '../dto/request/recomendation-matkul.dto';
 import { FindAllMatkulRecomendationResponse } from '../dto/response/find-all-recomendation-matkul-response.dto';
-import { FindAllMatkulRecomendationRequest } from '../dto/requet/find-all-recomendation-matkul-request.dto';
+import { FindAllMatkulRecomendationRequest } from '../dto/request/find-all-recomendation-matkul-request.dto';
 import { MatkulRecomendationService } from '../services/matkul-recomendation.service';
 import { MatkulRecomendationResponse } from '../dto/response/recomendation-matkul-response.dto';
 

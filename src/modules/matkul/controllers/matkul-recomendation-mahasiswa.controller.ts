@@ -4,8 +4,7 @@ import {
     HttpCode,
     HttpStatus,
     Param,
-    ParseIntPipe,
-    Query,
+    Post,
     UseGuards,
 } from '@nestjs/common';
 import { MatkulRecomendationMahasiswaService } from '../services/matkul-recomendation-mahasiswa.service';
@@ -13,6 +12,8 @@ import { ApiBearerAuth, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
+import { MatkulRecomendationMahasiswaRequest } from '../dto/request/matkul-recomendation-mahasiswa-request.dto';
+import { UpdateMatkulRecomendationMahasiswaRequest } from '../dto/request/update-matkul-recomendation-mahasiswa-request.dto';
 
 @Controller('matkul/recomendation/mahasiswa')
 export class MatkulRecomendationMahasiswaController {
@@ -23,33 +24,34 @@ export class MatkulRecomendationMahasiswaController {
     @ApiBody({})
     @ApiOkResponse({})
     @ApiBearerAuth()
-    @Get(':nim')
+    @Get(':nim/:semester')
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
     findAll(
-        @Param('nim') nim: string,
-        @Query('semester', ParseIntPipe) semester: number,
+        @Param() param: MatkulRecomendationMahasiswaRequest,
     ): Promise<MatkulRecomendationMahasiswaResponse> {
-        return this.matkulRecomendationMahasiswaService.findAll(nim, semester);
+        return this.matkulRecomendationMahasiswaService.findAll(
+            param.nim,
+            param.semester,
+        );
     }
 
-    // @ApiBody({
-    //     type: MatkulRecomendationRequest,
-    // })
-    // @ApiOkResponse({
-    //     type: MatkulRecomendationResponse,
-    // })
-    // @ApiBearerAuth()
-    // @Post()
-    // @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    // @UseGuards(JwtGuard)
-    // add(
-    //     @Body() request: MatkulRecomendationRequest,
-    // ): Promise<MatkulRecomendationResponse> {
-    //     return this.matkulRecomendationService.add(request);
-    // }
+    @ApiBody({
+        type: UpdateMatkulRecomendationMahasiswaRequest,
+    })
+    @ApiBearerAuth()
+    @Post(':nim/:semester/:kode_matkul')
+    @HttpCode(HttpStatus.CREATED)
+    @Roles('admin')
+    @UseGuards(JwtGuard)
+    create(@Param() param: UpdateMatkulRecomendationMahasiswaRequest) {
+        return this.matkulRecomendationMahasiswaService.create(
+            param.nim,
+            param.semester,
+            param.kode_matkul,
+        );
+    }
 
     // @ApiBody({
     //     type: MatkulRecomendationRequest,

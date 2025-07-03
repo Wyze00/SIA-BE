@@ -1,3 +1,3 @@
-import { MatkulRecomendationRequest } from '../requet/recomendation-matkul.dto';
+import { MatkulRecomendationRequest } from '../request/recomendation-matkul.dto';
 
 export class MatkulRecomendationResponse extends MatkulRecomendationRequest {}

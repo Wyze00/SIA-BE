@@ -3,12 +3,13 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { CreateMatkulRequest } from '../dto/requet/create-matkul-request.dto';
-import { UpdateMatkulRequest } from '../dto/requet/update-matkul.dto-request';
+import { CreateMatkulRequest } from '../dto/request/create-matkul-request.dto';
+import { UpdateMatkulRequest } from '../dto/request/update-matkul.dto-request';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { Matkul } from '@prisma/client';
 import { MatkulResponse } from '../dto/response/matkul-reesponse.dto';
 import { DosenService } from 'src/modules/dosen/dosen.service';
+import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 
 @Injectable()
 export class MatkulService {
@@ -60,6 +61,33 @@ export class MatkulService {
                 kode_matkul,
             },
         });
+    }
+
+    // CRUD
+
+    async getMatkulWithDosen(): Promise<MatkulWithDosen[]> {
+        const matkulAndDosen: MatkulWithDosen[] =
+            await this.prismaService.matkul.findMany({
+                include: { dosen: true },
+            });
+
+        return matkulAndDosen;
+    }
+
+    async getMatkulWithDosenByNotInKodeMakul(
+        kode_matkul: string[],
+    ): Promise<MatkulWithDosen[]> {
+        const matkulAndDosen: MatkulWithDosen[] =
+            await this.prismaService.matkul.findMany({
+                where: {
+                    kode_matkul: {
+                        notIn: kode_matkul,
+                    },
+                },
+                include: { dosen: true },
+            });
+
+        return matkulAndDosen;
     }
 
     // Validation

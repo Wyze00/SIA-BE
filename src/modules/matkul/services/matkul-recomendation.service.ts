@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
 import { $Enums, Matkul, RekomendasiMatkul } from '@prisma/client';
-import { MatkulRecomendationRequest } from '../dto/requet/recomendation-matkul.dto';
+import { MatkulRecomendationRequest } from '../dto/request/recomendation-matkul.dto';
 import { MatkulRecomendationWithMatkulAndDosen } from '../dto/types/raw-recomendation.type';
 import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
