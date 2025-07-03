@@ -24,12 +24,24 @@ export class MatkulAbsenMahasiswaService {
         }
     }
 
-    async removeAll(nim: string, semester: number, kode_matkul: string) {
+    async removeOne(
+        nim: string,
+        semester: number,
+        kode_matkul: string,
+    ): Promise<void> {
         await this.prismaService.mhsMengabsenMatkul.deleteMany({
             where: {
                 nim,
                 semester,
                 kode_matkul,
+            },
+        });
+    }
+
+    async removeAll(nim: string): Promise<void> {
+        await this.prismaService.mhsMengabsenMatkul.deleteMany({
+            where: {
+                nim,
             },
         });
     }

@@ -1,37 +1,36 @@
 import {
     ConflictException,
+    forwardRef,
+    Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { CreateMahasiswaRequest } from './dto/create-mahasiswa.dto';
+import { CreateMahasiswaRequest } from '../dto/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
-import { MahasiswaResponse } from './dto/mahasiswa-response.dto';
-import { UpdateMahasiswaRequest } from './dto/update-mahasiswa-request.dto';
+import { MahasiswaResponse } from '../dto/mahasiswa-response.dto';
+import { UpdateMahasiswaRequest } from '../dto/update-mahasiswa-request.dto';
 import { $Enums, Mahasiswa } from '@prisma/client';
-import { UserWithMahasiswa } from './dto/types/user-with-mahasiswa.types';
+import { UserWithMahasiswa } from '../dto/types/user-with-mahasiswa.types';
+import { MahasiswaTotalNilaiService } from './mahasiswa-total-nilai.service';
+import { MatkulRecomendationMahasiswaService } from 'src/modules/matkul/services/matkul-recomendation-mahasiswa.service';
 
 @Injectable()
 export class MahasiswaService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly mahasiswaTotalNilaiService: MahasiswaTotalNilaiService,
+        @Inject(forwardRef(() => MatkulRecomendationMahasiswaService))
+        private readonly matkulRecomendationMahasiswaService: MatkulRecomendationMahasiswaService,
+    ) {}
 
     // Core
 
     async remove(nim: string): Promise<void> {
         await this.ensureMahasiswaExistsOrThrow(nim);
-
-        await this.prismaService.$transaction([
-            this.prismaService.mahasiswa.delete({
-                where: {
-                    nim: nim,
-                },
-            }),
-            this.prismaService.user.delete({
-                where: {
-                    id: nim,
-                },
-            }),
-        ]);
+        await this.matkulRecomendationMahasiswaService.removeAll(nim);
+        await this.mahasiswaTotalNilaiService.remove(nim);
+        await this.removeMahasiswaAndUser(nim);
     }
 
     async findOne(nim: string): Promise<MahasiswaResponse> {
@@ -104,6 +103,7 @@ export class MahasiswaService {
         const userWithMahasiswa: UserWithMahasiswa =
             await this.createUserWithMahasiswa(request);
 
+        await this.mahasiswaTotalNilaiService.init(request.id);
         return this.toMahasiswaResponse(userWithMahasiswa.mahasiswa!);
     }
 
@@ -127,6 +127,19 @@ export class MahasiswaService {
             },
             include: {
                 mahasiswa: true,
+            },
+        });
+    }
+
+    async removeMahasiswaAndUser(nim: string): Promise<void> {
+        await this.prismaService.mahasiswa.delete({
+            where: {
+                nim: nim,
+            },
+        });
+        await this.prismaService.user.delete({
+            where: {
+                id: nim,
             },
         });
     }

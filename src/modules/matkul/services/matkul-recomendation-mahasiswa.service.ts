@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { MahasiswaService } from 'src/modules/mahasiswa/mahasiswa.service';
+import { MahasiswaService } from 'src/modules/mahasiswa/services/mahasiswa.service';
 import { MhsMengambilMatkulWithMatkulAndDosen } from '../dto/types/mhsMengambilMatkul-with-matkul-and-dosen.type';
 import { $Enums, Mahasiswa } from '@prisma/client';
 import { MatkulRecomendationWithMatkulAndDosen } from '../dto/types/raw-recomendation.type';
@@ -16,6 +16,7 @@ import { MatkulNilaiMahasiswaService } from './matkul-nilai-mahasiswa.service';
 export class MatkulRecomendationMahasiswaService {
     constructor(
         private readonly prismaService: PrismaService,
+        @Inject(forwardRef(() => MahasiswaService))
         private readonly mahasiswaService: MahasiswaService,
         private readonly matkulRecomendationService: MatkulRecomendationService,
         private readonly matkulService: MatkulService,
@@ -154,13 +155,13 @@ export class MatkulRecomendationMahasiswaService {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
         await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
 
-        await this.matkulAbsenMahasiswaService.removeAll(
+        await this.matkulAbsenMahasiswaService.removeOne(
             nim,
             semester,
             kode_matkul,
         );
 
-        await this.matkulNilaiMahasiswaService.removeAll(
+        await this.matkulNilaiMahasiswaService.removeOne(
             nim,
             semester,
             kode_matkul,
@@ -173,6 +174,17 @@ export class MatkulRecomendationMahasiswaService {
                     nim,
                     semester,
                 },
+            },
+        });
+    }
+
+    async removeAll(nim: string): Promise<void> {
+        await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
+        await this.matkulAbsenMahasiswaService.removeAll(nim);
+        await this.matkulNilaiMahasiswaService.removeAll(nim);
+        await this.prismaService.mhsMengambilMatkul.deleteMany({
+            where: {
+                nim,
             },
         });
     }

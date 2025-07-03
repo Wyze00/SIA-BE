@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MatkulService } from './services/matkul.service';
 import { MatkulController } from './controllers/matkul.controller';
 import { MatkulRecomendationController } from './controllers/matkul-recomendation.controller.ts';
@@ -11,7 +11,7 @@ import { MatkulNilaiMahasiswaService } from './services/matkul-nilai-mahasiswa.s
 import { MatkulAbsenMahasiswaService } from './services/matkul-absen-mahasiswa.service';
 
 @Module({
-    imports: [DosenModule, MahasiswaModule],
+    imports: [DosenModule, forwardRef(() => MahasiswaModule)],
     controllers: [
         MatkulRecomendationController,
         MatkulRecomendationMahasiswaController,
@@ -24,5 +24,6 @@ import { MatkulAbsenMahasiswaService } from './services/matkul-absen-mahasiswa.s
         MatkulNilaiMahasiswaService,
         MatkulAbsenMahasiswaService,
     ],
+    exports: [MatkulRecomendationMahasiswaService],
 })
 export class MatkulModule {}

@@ -64,12 +64,20 @@ export class MatkulNilaiMahasiswaService {
         });
     }
 
-    async removeAll(nim: string, semester: number, kode_matkul: string) {
+    async removeOne(nim: string, semester: number, kode_matkul: string) {
         await this.prismaService.mhsNilaiMatkul.deleteMany({
             where: {
                 nim,
                 semester,
                 kode_matkul,
+            },
+        });
+    }
+
+    async removeAll(nim: string) {
+        await this.prismaService.mhsNilaiMatkul.deleteMany({
+            where: {
+                nim,
             },
         });
     }
