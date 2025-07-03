@@ -101,13 +101,13 @@ export class MahasiswaService {
         await this.ensureMahasiswaNotExistsOrThrow(request.id);
 
         const userWithMahasiswa: UserWithMahasiswa =
-            await this.createUserWithMahasiswa(request);
+            await this.createUserAndMahasiswa(request);
 
         await this.mahasiswaTotalNilaiService.init(request.id);
         return this.toMahasiswaResponse(userWithMahasiswa.mahasiswa!);
     }
 
-    private async createUserWithMahasiswa(
+    private async createUserAndMahasiswa(
         request: CreateMahasiswaRequest,
     ): Promise<UserWithMahasiswa> {
         return this.prismaService.user.create({

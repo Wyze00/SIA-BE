@@ -3,7 +3,7 @@ import { TipeNilaiMatkul } from '@prisma/client';
 import { PrismaService } from 'src/common/provider/prisma.service';
 
 @Injectable()
-export class MatkulNilaiMahasiswaService {
+export class MahasiswaNilaiService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async init(nim: string, semester: number, kode_matkul: string) {

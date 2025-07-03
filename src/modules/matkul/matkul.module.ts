@@ -7,8 +7,6 @@ import { DosenModule } from '../dosen/dosen.module';
 import { MatkulRecomendationMahasiswaController } from './controllers/matkul-recomendation-mahasiswa.controller';
 import { MatkulRecomendationMahasiswaService } from './services/matkul-recomendation-mahasiswa.service';
 import { MahasiswaModule } from '../mahasiswa/mahasiswa.module';
-import { MatkulNilaiMahasiswaService } from './services/matkul-nilai-mahasiswa.service';
-import { MatkulAbsenMahasiswaService } from './services/matkul-absen-mahasiswa.service';
 
 @Module({
     imports: [DosenModule, forwardRef(() => MahasiswaModule)],
@@ -21,8 +19,6 @@ import { MatkulAbsenMahasiswaService } from './services/matkul-absen-mahasiswa.s
         MatkulService,
         MatkulRecomendationService,
         MatkulRecomendationMahasiswaService,
-        MatkulNilaiMahasiswaService,
-        MatkulAbsenMahasiswaService,
     ],
     exports: [MatkulRecomendationMahasiswaService],
 })

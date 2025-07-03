@@ -9,8 +9,8 @@ import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { MatkulService } from './matkul.service';
-import { MatkulAbsenMahasiswaService } from './matkul-absen-mahasiswa.service';
-import { MatkulNilaiMahasiswaService } from './matkul-nilai-mahasiswa.service';
+import { MahasiswaAbsenService } from 'src/modules/mahasiswa/services/mahasiswa.-absenservice';
+import { MahasiswaNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
 
 @Injectable()
 export class MatkulRecomendationMahasiswaService {
@@ -20,8 +20,10 @@ export class MatkulRecomendationMahasiswaService {
         private readonly mahasiswaService: MahasiswaService,
         private readonly matkulRecomendationService: MatkulRecomendationService,
         private readonly matkulService: MatkulService,
-        private readonly matkulAbsenMahasiswaService: MatkulAbsenMahasiswaService,
-        private readonly matkulNilaiMahasiswaService: MatkulNilaiMahasiswaService,
+        @Inject(forwardRef(() => MahasiswaAbsenService))
+        private readonly mahasiswaAbsenService: MahasiswaAbsenService,
+        @Inject(forwardRef(() => MahasiswaNilaiService))
+        private readonly mahasiswaNilaiService: MahasiswaNilaiService,
     ) {}
 
     // CRUD
@@ -141,31 +143,23 @@ export class MatkulRecomendationMahasiswaService {
             },
         });
 
-        await this.matkulAbsenMahasiswaService.init(
+        await this.mahasiswaAbsenService.init(
             nim,
             semester,
             kode_matkul,
             matkul.total_pertemuan,
         );
 
-        await this.matkulNilaiMahasiswaService.init(nim, semester, kode_matkul);
+        await this.mahasiswaNilaiService.init(nim, semester, kode_matkul);
     }
 
     async remove(nim: string, semester: number, kode_matkul: string) {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
         await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
 
-        await this.matkulAbsenMahasiswaService.removeOne(
-            nim,
-            semester,
-            kode_matkul,
-        );
+        await this.mahasiswaAbsenService.removeOne(nim, semester, kode_matkul);
 
-        await this.matkulNilaiMahasiswaService.removeOne(
-            nim,
-            semester,
-            kode_matkul,
-        );
+        await this.mahasiswaNilaiService.removeOne(nim, semester, kode_matkul);
 
         await this.prismaService.mhsMengambilMatkul.delete({
             where: {
@@ -180,8 +174,8 @@ export class MatkulRecomendationMahasiswaService {
 
     async removeAll(nim: string): Promise<void> {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
-        await this.matkulAbsenMahasiswaService.removeAll(nim);
-        await this.matkulNilaiMahasiswaService.removeAll(nim);
+        await this.mahasiswaAbsenService.removeAll(nim);
+        await this.mahasiswaNilaiService.removeAll(nim);
         await this.prismaService.mhsMengambilMatkul.deleteMany({
             where: {
                 nim,
