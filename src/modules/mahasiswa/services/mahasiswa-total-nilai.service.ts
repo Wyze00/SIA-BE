@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { MhsTotalNilai } from '@prisma/client';
 import { PrismaService } from 'src/common/provider/prisma.service';
 
 @Injectable()
@@ -78,5 +79,16 @@ export class MahasiswaTotalNilaiService {
                 ips,
             },
         });
+    }
+
+    async findOne(nim: string, semester: number): Promise<MhsTotalNilai> {
+        return (await this.prismaService.mhsTotalNilai.findUnique({
+            where: {
+                nim_semester: {
+                    nim,
+                    semester,
+                },
+            },
+        }))!;
     }
 }

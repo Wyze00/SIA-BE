@@ -111,11 +111,13 @@ model Matkul {
 }
 
 model MhsMengambilMatkul {
-  kode_matkul String       @db.VarChar(10)
-  nim         String       @db.VarChar(10)
-  semester    Int          @db.TinyInt
-  nilai_huruf String?      @db.Char(2)
-  status      StatusMatkul
+  kode_matkul    String       @db.VarChar(10)
+  nim            String       @db.VarChar(10)
+  semester       Int          @db.TinyInt
+  nilai_huruf    String      @db.Char(2)
+  status         StatusMatkul
+  nilai          Int          @db.TinyInt
+  persen_absensi Float        @db.Float
 
   matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])
   mahasiswa Mahasiswa @relation(fields: [nim], references: [nim])
@@ -143,7 +145,7 @@ model MhsNilaiMatkul {
   nim         String          @db.VarChar(10)
   semester    Int             @db.TinyInt
   nilai       Float           @db.Float
-  bobot       Float?          @db.Float
+  bobot       Float          @db.Float
   tipe        TipeNilaiMatkul
 
   matkul    Matkul    @relation(fields: [kode_matkul], references: [kode_matkul])

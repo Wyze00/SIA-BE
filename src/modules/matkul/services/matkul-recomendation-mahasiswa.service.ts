@@ -9,8 +9,9 @@ import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { MatkulService } from './matkul.service';
-import { MahasiswaAbsenService } from 'src/modules/mahasiswa/services/mahasiswa.-absenservice';
+import { MahasiswaAbsenService } from 'src/modules/mahasiswa/services/mahasiswa-absen.service';
 import { MahasiswaNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
+import { MahasiswaTotalNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-total-nilai.service';
 
 @Injectable()
 export class MatkulRecomendationMahasiswaService {
@@ -24,6 +25,8 @@ export class MatkulRecomendationMahasiswaService {
         private readonly mahasiswaAbsenService: MahasiswaAbsenService,
         @Inject(forwardRef(() => MahasiswaNilaiService))
         private readonly mahasiswaNilaiService: MahasiswaNilaiService,
+        @Inject(forwardRef(() => MahasiswaTotalNilaiService))
+        private readonly mahasiswaTotalNilaiService: MahasiswaTotalNilaiService,
     ) {}
 
     // CRUD
@@ -140,6 +143,8 @@ export class MatkulRecomendationMahasiswaService {
                 kode_matkul,
                 nim,
                 nilai_huruf: '-',
+                nilai: 0,
+                persen_absensi: 0,
             },
         });
 
@@ -151,11 +156,17 @@ export class MatkulRecomendationMahasiswaService {
         );
 
         await this.mahasiswaNilaiService.init(nim, semester, kode_matkul);
+        await this.mahasiswaTotalNilaiService.incremenetSKS(
+            nim,
+            semester,
+            matkul.total_sks,
+        );
     }
 
     async remove(nim: string, semester: number, kode_matkul: string) {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
-        await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
+        const matkul =
+            await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
 
         await this.mahasiswaAbsenService.removeOne(nim, semester, kode_matkul);
 
@@ -170,6 +181,12 @@ export class MatkulRecomendationMahasiswaService {
                 },
             },
         });
+
+        await this.mahasiswaTotalNilaiService.decrementSKS(
+            nim,
+            semester,
+            matkul.total_sks,
+        );
     }
 
     async removeAll(nim: string): Promise<void> {
