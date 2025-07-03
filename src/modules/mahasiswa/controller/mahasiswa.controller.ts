@@ -17,12 +17,12 @@ import {
     ApiCreatedResponse,
     ApiOkResponse,
 } from '@nestjs/swagger';
-import { CreateMahasiswaRequest } from '.././dto/create-mahasiswa.dto';
+import { CreateMahasiswaRequest } from '../dto/request/create-mahasiswa.dto';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { MahasiswaService } from '../services/mahasiswa.service';
-import { MahasiswaResponse } from '../dto/mahasiswa-response.dto';
-import { UpdateMahasiswaRequest } from '../dto/update-mahasiswa-request.dto';
+import { MahasiswaResponse } from '../dto/response/mahasiswa-response.dto';
+import { UpdateMahasiswaRequest } from '../dto/request/update-mahasiswa-request.dto';
 import { User } from 'src/common/decorator/user.decorator';
 import { UserRole } from 'src/common/dto/user-role.dto';
 import { $Enums } from '@prisma/client';

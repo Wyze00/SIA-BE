@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { TipeNilaiMatkul } from '@prisma/client';
 import { PrismaService } from 'src/common/provider/prisma.service';
+import { MahasiswaNilaiMatkulResponse } from '../dto/response/mahasiswa-nilai-matkul-response.dto';
 
 @Injectable()
-export class MahasiswaNilaiService {
+export class MahasiswaNilaiMatkulService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async init(nim: string, semester: number, kode_matkul: string) {
@@ -78,6 +79,20 @@ export class MahasiswaNilaiService {
         await this.prismaService.mhsNilaiMatkul.deleteMany({
             where: {
                 nim,
+            },
+        });
+    }
+
+    async findAll(
+        nim: string,
+        semester: number,
+        kode_matkul: string,
+    ): Promise<MahasiswaNilaiMatkulResponse[]> {
+        return await this.prismaService.mhsNilaiMatkul.findMany({
+            where: {
+                nim,
+                semester,
+                kode_matkul,
             },
         });
     }

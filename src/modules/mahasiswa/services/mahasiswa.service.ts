@@ -6,10 +6,10 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
-import { CreateMahasiswaRequest } from '../dto/create-mahasiswa.dto';
+import { CreateMahasiswaRequest } from '../dto/request/create-mahasiswa.dto';
 import * as bcrypt from 'bcrypt';
-import { MahasiswaResponse } from '../dto/mahasiswa-response.dto';
-import { UpdateMahasiswaRequest } from '../dto/update-mahasiswa-request.dto';
+import { MahasiswaResponse } from '../dto/response/mahasiswa-response.dto';
+import { UpdateMahasiswaRequest } from '../dto/request/update-mahasiswa-request.dto';
 import { $Enums, Mahasiswa } from '@prisma/client';
 import { UserWithMahasiswa } from '../dto/types/user-with-mahasiswa.types';
 import { MahasiswaTotalNilaiService } from './mahasiswa-total-nilai.service';

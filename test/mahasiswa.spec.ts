@@ -15,7 +15,7 @@ import { Logger } from 'winston';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { WebResponse } from 'src/common/dto/web-response.dto';
 import { TestService } from './util/test.service';
-import { MahasiswaRespone } from 'src/modules/mahasiswa/dto/mahasiswa-response.dto';
+import { MahasiswaRespone } from 'src/modules/mahasiswa/dto/response/mahasiswa-response.dto';
 import { TestModule } from './util/test.module';
 
 describe('Auth Controller', () => {

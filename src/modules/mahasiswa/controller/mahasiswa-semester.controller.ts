@@ -9,7 +9,7 @@ import {
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
 import { MahasiswaSemesterService } from '../services/mahasiswa-semester.service';
-import { FindAllMahaiswaSemesterResponse } from '../dto/find-all-mahasiswa-semester-response.dto';
+import { FindAllMahaiswaSemesterResponse } from '../dto/response/find-all-mahasiswa-semester-response.dto';
 
 @Controller('semester')
 export class MahasiswaSemesterController {

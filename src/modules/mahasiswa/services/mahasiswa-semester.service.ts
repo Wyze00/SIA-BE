@@ -5,7 +5,7 @@ import { MatkulRecomendationMahasiswaService } from 'src/modules/matkul/services
 import { MhsMengambilMatkulWithMatkulAndDosen } from 'src/modules/matkul/dto/types/mhsMengambilMatkul-with-matkul-and-dosen.type';
 import { MahasiswaSemester } from '../dto/types/mahasiswa-semester.type';
 import { MahasiswaTotalNilaiService } from './mahasiswa-total-nilai.service';
-import { FindAllMahaiswaSemesterResponse } from '../dto/find-all-mahasiswa-semester-response.dto';
+import { FindAllMahaiswaSemesterResponse } from '../dto/response/find-all-mahasiswa-semester-response.dto';
 
 @Injectable()
 export class MahasiswaSemesterService {

@@ -10,7 +10,7 @@ import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-rec
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { MatkulService } from './matkul.service';
 import { MahasiswaAbsenService } from 'src/modules/mahasiswa/services/mahasiswa-absen.service';
-import { MahasiswaNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
+import { MahasiswaNilaiMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
 import { MahasiswaTotalNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-total-nilai.service';
 
 @Injectable()
@@ -23,8 +23,8 @@ export class MatkulRecomendationMahasiswaService {
         private readonly matkulService: MatkulService,
         @Inject(forwardRef(() => MahasiswaAbsenService))
         private readonly mahasiswaAbsenService: MahasiswaAbsenService,
-        @Inject(forwardRef(() => MahasiswaNilaiService))
-        private readonly mahasiswaNilaiService: MahasiswaNilaiService,
+        @Inject(forwardRef(() => MahasiswaNilaiMatkulService))
+        private readonly mahasiswaNilaiService: MahasiswaNilaiMatkulService,
         @Inject(forwardRef(() => MahasiswaTotalNilaiService))
         private readonly mahasiswaTotalNilaiService: MahasiswaTotalNilaiService,
     ) {}
