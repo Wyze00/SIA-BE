@@ -20,6 +20,10 @@ import { MahasiswaModule } from '../mahasiswa/mahasiswa.module';
         MatkulRecomendationService,
         MatkulRecomendationMahasiswaService,
     ],
-    exports: [MatkulRecomendationMahasiswaService],
+    exports: [
+        MatkulRecomendationMahasiswaService,
+        MatkulService,
+        MatkulRecomendationService,
+    ],
 })
 export class MatkulModule {}

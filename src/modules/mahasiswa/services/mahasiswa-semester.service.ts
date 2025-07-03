@@ -1,5 +1,4 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/common/provider/prisma.service';
 import { MahasiswaService } from './mahasiswa.service';
 import { MatkulRecomendationMahasiswaService } from 'src/modules/matkul/services/matkul-recomendation-mahasiswa.service';
 import { MhsMengambilMatkulWithMatkulAndDosen } from 'src/modules/matkul/dto/types/mhsMengambilMatkul-with-matkul-and-dosen.type';
@@ -10,7 +9,6 @@ import { FindAllMahaiswaSemesterResponse } from '../dto/response/find-all-mahasi
 @Injectable()
 export class MahasiswaSemesterService {
     constructor(
-        private readonly prismaSevice: PrismaService,
         private readonly mahasiswaService: MahasiswaService,
         @Inject(forwardRef(() => MatkulRecomendationMahasiswaService))
         private readonly matkulRecomendationMahasiswaService: MatkulRecomendationMahasiswaService,

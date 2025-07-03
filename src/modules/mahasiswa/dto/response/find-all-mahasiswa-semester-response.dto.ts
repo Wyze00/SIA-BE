@@ -1,4 +1,4 @@
-import { MahasiswaSemester } from './types/mahasiswa-semester.type';
+import { MahasiswaSemester } from '../types/mahasiswa-semester.type';
 
 export class FindAllMahaiswaSemesterResponse {
     all: MahasiswaSemester[];

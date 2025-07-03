@@ -1,9 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/common/provider/prisma.service';
+import { MahasiswaService } from './mahasiswa.service';
+import { MatkulService } from 'src/modules/matkul/services/matkul.service';
 
 @Injectable()
-export class MahasiswaAbsenService {
-    constructor(private readonly prismaService: PrismaService) {}
+export class MahasiswaAbsenMatkulService {
+    constructor(
+        private readonly prismaService: PrismaService,
+        @Inject(forwardRef(() => MahasiswaService))
+        private readonly mahasiswaService: MahasiswaService,
+        @Inject(forwardRef(() => MatkulService))
+        private readonly matkulService: MatkulService,
+    ) {}
 
     async init(
         nim: string,
@@ -42,6 +50,19 @@ export class MahasiswaAbsenService {
         await this.prismaService.mhsMengabsenMatkul.deleteMany({
             where: {
                 nim,
+            },
+        });
+    }
+
+    async findAll(nim: string, semester: number, kode_matkul: string) {
+        await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
+        await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
+
+        await this.prismaService.mhsMengabsenMatkul.findMany({
+            where: {
+                nim,
+                semester,
+                kode_matkul,
             },
         });
     }
