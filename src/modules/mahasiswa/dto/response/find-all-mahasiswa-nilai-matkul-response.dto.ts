@@ -1,7 +1,7 @@
-import { MhsNilaiMatkul } from '@prisma/client';
+import { MahasiswaNilaiMatkulResponse } from './mahasiswa-nilai-matkul-response.dto';
 
 export class FindAllMahasiswaNilaiMatkulResponse {
-    allMatkul: MhsNilaiMatkul[];
+    allMatkul: MahasiswaNilaiMatkulResponse[];
     summary: {
         average: number;
         nilai_huruf: string;

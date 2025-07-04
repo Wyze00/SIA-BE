@@ -67,7 +67,34 @@ export class MahasiswaTotalNilaiService {
         });
     }
 
-    async updateIps(nim: string, semester: number, ips: number): Promise<void> {
+    async updateIps(nim: string, semester: number): Promise<void> {
+        const mhsTotalNilai: MhsTotalNilai =
+            (await this.prismaService.mhsTotalNilai.findUnique({
+                where: {
+                    nim_semester: {
+                        nim,
+                        semester,
+                    },
+                },
+            }))!;
+
+        const mhsAmbilMatkul =
+            await this.prismaService.mhsMengambilMatkul.findMany({
+                where: {
+                    nim,
+                    semester,
+                },
+                include: {
+                    matkul: true,
+                },
+            });
+
+        const sumNA: number = mhsAmbilMatkul.reduce(
+            (a, c) =>
+                a + this.nilaiHurufToNA(c.nilai_huruf) * c.matkul.total_sks,
+            0,
+        );
+
         await this.prismaService.mhsTotalNilai.update({
             where: {
                 nim_semester: {
@@ -76,7 +103,7 @@ export class MahasiswaTotalNilaiService {
                 },
             },
             data: {
-                ips,
+                ips: sumNA / mhsTotalNilai.total_sks,
             },
         });
     }
@@ -90,5 +117,21 @@ export class MahasiswaTotalNilaiService {
                 },
             },
         }))!;
+    }
+
+    // Mapper
+
+    nilaiHurufToNA(nilai_huruf: string): number {
+        if (nilai_huruf == 'A') {
+            return 4;
+        } else if (nilai_huruf == 'B') {
+            return 3;
+        } else if (nilai_huruf == 'C') {
+            return 2;
+        } else if (nilai_huruf == 'D') {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

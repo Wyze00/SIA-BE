@@ -9,7 +9,7 @@ import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-rec
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { MatkulService } from './matkul.service';
 import { MahasiswaAbsenMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-absen-matkul.service';
-import { MahasiswaNilaiMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
+import { MahasiswaNilaiMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-nilai-matkul.service';
 import { MahasiswaTotalNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-total-nilai.service';
 import { MatkulResponse } from '../dto/response/matkul-reesponse.dto';
 
