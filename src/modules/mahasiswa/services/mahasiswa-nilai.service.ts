@@ -121,8 +121,8 @@ export class MahasiswaNilaiMatkulService {
             });
 
         return {
-            all: mhsNilaiMatkul,
-            nilai: {
+            allMatkul: mhsNilaiMatkul,
+            summary: {
                 average: mhsAmbilMatkul!.nilai,
                 nilai_huruf: mhsAmbilMatkul!.nilai_huruf,
             },

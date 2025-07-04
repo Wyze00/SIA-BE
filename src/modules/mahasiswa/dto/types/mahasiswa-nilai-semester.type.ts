@@ -1,4 +1,4 @@
-export type MahasiswaSemester = {
+export type MahasiswaNilaiSemester = {
     kode_matkul: string;
     name: string;
     dosen_name: string;

@@ -58,7 +58,7 @@ export class MahasiswaAbsenMatkulService {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
         await this.matkulService.ensureMatkulExistsOrThrow(kode_matkul);
 
-        await this.prismaService.mhsMengabsenMatkul.findMany({
+        return await this.prismaService.mhsMengabsenMatkul.findMany({
             where: {
                 nim,
                 semester,

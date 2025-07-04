@@ -1,5 +1,6 @@
-import { Dosen, Matkul, MhsMengambilMatkul } from '@prisma/client';
+import { MhsMengambilMatkul } from '@prisma/client';
+import { MatkulWithDosen } from './matkul-include-dosen.type';
 
 export type MhsMengambilMatkulWithMatkulAndDosen = MhsMengambilMatkul & {
-    matkul: Matkul & { dosen: Dosen };
+    matkul: MatkulWithDosen;
 };

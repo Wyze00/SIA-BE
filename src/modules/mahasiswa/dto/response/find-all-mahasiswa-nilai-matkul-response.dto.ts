@@ -1,8 +1,8 @@
 import { MhsNilaiMatkul } from '@prisma/client';
 
 export class FindAllMahasiswaNilaiMatkulResponse {
-    all: MhsNilaiMatkul[];
-    nilai: {
+    allMatkul: MhsNilaiMatkul[];
+    summary: {
         average: number;
         nilai_huruf: string;
     };

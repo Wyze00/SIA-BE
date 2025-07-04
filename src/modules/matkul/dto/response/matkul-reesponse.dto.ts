@@ -50,4 +50,14 @@ export class MatkulResponse implements Matkul {
     @IsNumber()
     @IsPositive()
     total_sks: number;
+
+    @ApiProperty({
+        type: String,
+        example: 'Budi Susanto',
+        minLength: 1,
+        maxLength: 50,
+    })
+    @IsString()
+    @Length(1, 50)
+    dosen_name: string;
 }

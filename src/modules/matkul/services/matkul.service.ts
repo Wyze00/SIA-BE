@@ -23,21 +23,24 @@ export class MatkulService {
     async create(request: CreateMatkulRequest): Promise<MatkulResponse> {
         await this.dosenService.ensureDosenExistsOrThrow(request.dosen_nip);
         await this.ensureMatkulNotExistsOrThrow(request.kode_matkul);
-        const matkul: Matkul = await this.prismaService.matkul.create({
+        const matkul: MatkulWithDosen = await this.prismaService.matkul.create({
             data: request,
+            include: {
+                dosen: true,
+            },
         });
-        return this.toMatkulResponse(matkul);
+        return this.formatMatkulWithDosenToMatkulResponse(matkul);
     }
 
     async findAll(): Promise<MatkulResponse[]> {
-        const matkul: Matkul[] = await this.prismaService.matkul.findMany();
-        return matkul.map((m) => this.toMatkulResponse(m));
+        const matkul: MatkulWithDosen[] = await this.getAllMatkulWithDosen();
+        return matkul.map((m) => this.formatMatkulWithDosenToMatkulResponse(m));
     }
 
     async findOne(kode_matkul: string): Promise<MatkulResponse> {
-        const matkul: Matkul =
+        const matkul: MatkulWithDosen =
             await this.ensureMatkulExistsOrThrow(kode_matkul);
-        return this.toMatkulResponse(matkul);
+        return this.formatMatkulWithDosenToMatkulResponse(matkul);
     }
 
     async update(
@@ -45,13 +48,16 @@ export class MatkulService {
         request: UpdateMatkulRequest,
     ): Promise<MatkulResponse> {
         await this.ensureMatkulExistsOrThrow(kode_matkul);
-        const matkul: Matkul = await this.prismaService.matkul.update({
+        const matkul: MatkulWithDosen = await this.prismaService.matkul.update({
             where: {
                 kode_matkul,
             },
             data: request,
+            include: {
+                dosen: true,
+            },
         });
-        return this.toMatkulResponse(matkul);
+        return this.formatMatkulWithDosenToMatkulResponse(matkul);
     }
 
     async remove(kode_matkul: string): Promise<void> {
@@ -65,7 +71,7 @@ export class MatkulService {
 
     // CRUD
 
-    async getMatkulWithDosen(): Promise<MatkulWithDosen[]> {
+    async getAllMatkulWithDosen(): Promise<MatkulWithDosen[]> {
         const matkulAndDosen: MatkulWithDosen[] =
             await this.prismaService.matkul.findMany({
                 include: { dosen: true },
@@ -74,7 +80,7 @@ export class MatkulService {
         return matkulAndDosen;
     }
 
-    async getMatkulWithDosenByNotInKodeMakul(
+    async getAllMatkulWithDosenByNotInKodeMakul(
         kode_matkul: string[],
     ): Promise<MatkulWithDosen[]> {
         const matkulAndDosen: MatkulWithDosen[] =
@@ -92,11 +98,16 @@ export class MatkulService {
 
     // Validation
 
-    async ensureMatkulExistsOrThrow(kode_matkul: string): Promise<Matkul> {
-        const matkul: Matkul | null =
+    async ensureMatkulExistsOrThrow(
+        kode_matkul: string,
+    ): Promise<MatkulWithDosen> {
+        const matkul: MatkulWithDosen | null =
             await this.prismaService.matkul.findUnique({
                 where: {
                     kode_matkul,
+                },
+                include: {
+                    dosen: true,
                 },
             });
 
@@ -122,13 +133,16 @@ export class MatkulService {
 
     // Mapping
 
-    toMatkulResponse(matkul: Matkul): MatkulResponse {
+    formatMatkulWithDosenToMatkulResponse(
+        matkul: MatkulWithDosen,
+    ): MatkulResponse {
         return {
             kode_matkul: matkul.kode_matkul,
             dosen_nip: matkul.dosen_nip,
             name: matkul.name,
             total_pertemuan: matkul.total_pertemuan,
             total_sks: matkul.total_sks,
+            dosen_name: matkul.dosen.name,
         };
     }
 }

@@ -8,23 +8,23 @@ import {
 } from '@nestjs/common';
 import { Roles } from 'src/common/decorator/roles.decorator';
 import { JwtGuard } from 'src/common/guard/jwt.guard';
-import { MahasiswaSemesterService } from '../services/mahasiswa-semester.service';
-import { FindAllMahaiswaSemesterResponse } from '../dto/response/find-all-mahasiswa-semester-response.dto';
+import { MahasiswaNilaiSemesterService } from '../services/mahasiswa-nilai-semester.service';
+import { MahasiswaNilaiSemesterResponse } from '../dto/response/mahasiswa-nilai-semester-response';
 
-@Controller('semester')
-export class MahasiswaSemesterController {
+@Controller('mahasiswa/:nim/semester')
+export class MahasiswaNilaiSemesterController {
     constructor(
-        private readonly mahasiswaSemesterService: MahasiswaSemesterService,
+        private readonly mahasiswaSemesterService: MahasiswaNilaiSemesterService,
     ) {}
 
-    @Get(':nim/:semester')
+    @Get(':semester')
     @HttpCode(HttpStatus.OK)
     @Roles('admin')
     @UseGuards(JwtGuard)
     findOne(
         @Param('nim') nim: string,
         @Param('semester') semester: number,
-    ): Promise<FindAllMahaiswaSemesterResponse> {
+    ): Promise<MahasiswaNilaiSemesterResponse> {
         return this.mahasiswaSemesterService.findOne(nim, semester);
     }
 }

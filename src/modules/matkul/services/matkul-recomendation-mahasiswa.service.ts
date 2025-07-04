@@ -5,13 +5,13 @@ import { MhsMengambilMatkulWithMatkulAndDosen } from '../dto/types/mhsMengambilM
 import { $Enums, Mahasiswa } from '@prisma/client';
 import { MatkulRecomendationWithMatkulAndDosen } from '../dto/types/raw-recomendation.type';
 import { MatkulRecomendationService } from './matkul-recomendation.service';
-import { MatkulRecomendation } from '../dto/types/matkul-recomendation.type';
 import { MatkulRecomendationMahasiswaResponse } from '../dto/response/matkul-recomendation-mahasiswa-response.dto';
 import { MatkulWithDosen } from '../dto/types/matkul-include-dosen.type';
 import { MatkulService } from './matkul.service';
 import { MahasiswaAbsenMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-absen-matkul.service';
 import { MahasiswaNilaiMatkulService } from 'src/modules/mahasiswa/services/mahasiswa-nilai.service';
 import { MahasiswaTotalNilaiService } from 'src/modules/mahasiswa/services/mahasiswa-total-nilai.service';
+import { MatkulResponse } from '../dto/response/matkul-reesponse.dto';
 
 @Injectable()
 export class MatkulRecomendationMahasiswaService {
@@ -31,7 +31,7 @@ export class MatkulRecomendationMahasiswaService {
 
     // CRUD
 
-    async getMhsMengambilMaktulWithMatkulAndDosen(
+    async getAllMhsMengambilMaktulWithMatkulAndDosen(
         nim: string,
         semester: number,
     ): Promise<MhsMengambilMatkulWithMatkulAndDosen[]> {
@@ -55,24 +55,27 @@ export class MatkulRecomendationMahasiswaService {
 
     // Login
 
-    async getInRecomendation(
+    async getSelectedRecomendation(
         nim: string,
         semester: number,
-    ): Promise<MatkulRecomendation> {
+    ): Promise<MatkulResponse[]> {
         const mhsMengambilMatkul: MhsMengambilMatkulWithMatkulAndDosen[] =
-            await this.getMhsMengambilMaktulWithMatkulAndDosen(nim, semester);
+            await this.getAllMhsMengambilMaktulWithMatkulAndDosen(
+                nim,
+                semester,
+            );
 
-        return this.formatMhsMengambilMatkulWithMakulAndDosen(
-            mhsMengambilMatkul,
+        return mhsMengambilMatkul.map((m) =>
+            this.formatMhsMengambilMatkulWithMakulAndDosen(m),
         );
     }
 
-    async getNotInRecomendation(
-        inRecomendation: MatkulRecomendation,
+    async getRecomendedRecomendation(
+        selectedRecomendation: MatkulResponse[],
         semester: number,
         jurusan: $Enums.Jurusan,
-    ): Promise<MatkulRecomendation> {
-        const kode_matkul = this.mapToKodeMatkul(inRecomendation);
+    ): Promise<MatkulResponse[]> {
+        const kode_matkul = this.mapToKodeMatkul(selectedRecomendation);
 
         const mhsMengambilMatkul: MatkulRecomendationWithMatkulAndDosen[] =
             await this.matkulRecomendationService.getMaktulRecomendationWithMatkulAndDosenBySemesterAndJurusanAndNotInKodeMatkul(
@@ -81,25 +84,29 @@ export class MatkulRecomendationMahasiswaService {
                 kode_matkul,
             );
 
-        return this.matkulRecomendationService.formatMatkulRecomendationWithMatkulAndDosen(
-            mhsMengambilMatkul,
+        return mhsMengambilMatkul.map((m) =>
+            this.matkulRecomendationService.formatMatkulRecomendationWithMatkulAndDosenToMatkulResponse(
+                m,
+            ),
         );
     }
 
-    async getAllRecomendation(
-        inRecomendation: MatkulRecomendation,
-        notInRecomendation: MatkulRecomendation,
-    ): Promise<MatkulRecomendation> {
-        const kode_matkul = this.mapToKodeMatkul(inRecomendation).concat(
-            this.mapToKodeMatkul(notInRecomendation),
+    async getAllMatkulRecomendation(
+        selectedRecomendation: MatkulResponse[],
+        recomendedRecomendation: MatkulResponse[],
+    ): Promise<MatkulResponse[]> {
+        const kode_matkul = this.mapToKodeMatkul(selectedRecomendation).concat(
+            this.mapToKodeMatkul(recomendedRecomendation),
         );
 
         const matkul: MatkulWithDosen[] =
-            await this.matkulService.getMatkulWithDosenByNotInKodeMakul(
+            await this.matkulService.getAllMatkulWithDosenByNotInKodeMakul(
                 kode_matkul,
             );
 
-        return this.matkulRecomendationService.formatMatkulWithDosen(matkul);
+        return matkul.map((m) =>
+            this.matkulService.formatMatkulWithDosenToMatkulResponse(m),
+        );
     }
 
     // Core
@@ -111,23 +118,26 @@ export class MatkulRecomendationMahasiswaService {
         const mahasiswa: Mahasiswa =
             await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
 
-        const inRecomendation: MatkulRecomendation =
-            await this.getInRecomendation(mahasiswa.nim, semester);
+        const selectedRecomendation: MatkulResponse[] =
+            await this.getSelectedRecomendation(mahasiswa.nim, semester);
 
-        const notInRecomendation: MatkulRecomendation =
-            await this.getNotInRecomendation(
-                inRecomendation,
+        const recomendedRecomendation: MatkulResponse[] =
+            await this.getRecomendedRecomendation(
+                selectedRecomendation,
                 semester,
                 mahasiswa.jurusan,
             );
 
-        const allRecomendation: MatkulRecomendation =
-            await this.getAllRecomendation(inRecomendation, notInRecomendation);
+        const allRecomendation: MatkulResponse[] =
+            await this.getAllMatkulRecomendation(
+                selectedRecomendation,
+                recomendedRecomendation,
+            );
 
         return {
-            in: inRecomendation,
-            notIn: notInRecomendation,
-            all: allRecomendation,
+            selected: selectedRecomendation,
+            recomended: recomendedRecomendation,
+            allMatkul: allRecomendation,
         };
     }
 
@@ -156,6 +166,7 @@ export class MatkulRecomendationMahasiswaService {
         );
 
         await this.mahasiswaNilaiService.init(nim, semester, kode_matkul);
+
         await this.mahasiswaTotalNilaiService.incremenetSKS(
             nim,
             semester,
@@ -203,22 +214,20 @@ export class MatkulRecomendationMahasiswaService {
     // Format
 
     formatMhsMengambilMatkulWithMakulAndDosen(
-        raw: MhsMengambilMatkulWithMatkulAndDosen[],
-    ): MatkulRecomendation {
-        return raw.map((r) => {
-            const m = r.matkul;
-            return {
-                kode_matkul: m.kode_matkul,
-                name: m.name,
-                total_sks: m.total_sks,
-                total_pertemuan: m.total_pertemuan,
-                dosen_nip: m.dosen_nip,
-                dosen_name: m.dosen.name,
-            };
-        });
+        raw: MhsMengambilMatkulWithMatkulAndDosen,
+    ): MatkulResponse {
+        const matkul: MatkulWithDosen = raw.matkul;
+        return {
+            kode_matkul: matkul.kode_matkul,
+            name: matkul.name,
+            total_sks: matkul.total_sks,
+            total_pertemuan: matkul.total_pertemuan,
+            dosen_nip: matkul.dosen_nip,
+            dosen_name: matkul.dosen.name,
+        };
     }
 
-    mapToKodeMatkul(recomendation: MatkulRecomendation): string[] {
+    mapToKodeMatkul(recomendation: MatkulResponse[]): string[] {
         return recomendation.map((r) => r.kode_matkul);
     }
 }

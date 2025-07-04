@@ -2,12 +2,12 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { MahasiswaService } from './mahasiswa.service';
 import { MatkulRecomendationMahasiswaService } from 'src/modules/matkul/services/matkul-recomendation-mahasiswa.service';
 import { MhsMengambilMatkulWithMatkulAndDosen } from 'src/modules/matkul/dto/types/mhsMengambilMatkul-with-matkul-and-dosen.type';
-import { MahasiswaSemester } from '../dto/types/mahasiswa-semester.type';
+import { MahasiswaNilaiSemester } from '../dto/types/mahasiswa-nilai-semester.type';
 import { MahasiswaTotalNilaiService } from './mahasiswa-total-nilai.service';
-import { FindAllMahaiswaSemesterResponse } from '../dto/response/find-all-mahasiswa-semester-response.dto';
+import { MahasiswaNilaiSemesterResponse } from '../dto/response/mahasiswa-nilai-semester-response';
 
 @Injectable()
-export class MahasiswaSemesterService {
+export class MahasiswaNilaiSemesterService {
     constructor(
         private readonly mahasiswaService: MahasiswaService,
         @Inject(forwardRef(() => MatkulRecomendationMahasiswaService))
@@ -18,11 +18,11 @@ export class MahasiswaSemesterService {
     async findOne(
         nim: string,
         semester: number,
-    ): Promise<FindAllMahaiswaSemesterResponse> {
+    ): Promise<MahasiswaNilaiSemesterResponse> {
         await this.mahasiswaService.ensureMahasiswaExistsOrThrow(nim);
 
         const matkul: MhsMengambilMatkulWithMatkulAndDosen[] =
-            await this.matkulRecomendationMahasiswaService.getMhsMengambilMaktulWithMatkulAndDosen(
+            await this.matkulRecomendationMahasiswaService.getAllMhsMengambilMaktulWithMatkulAndDosen(
                 nim,
                 semester,
             );
@@ -38,16 +38,17 @@ export class MahasiswaSemesterService {
         );
 
         return {
-            all: formated,
-            nilai: {
+            allMatkul: formated,
+            summary: {
                 ips: totalNilai.ips,
                 total_sks: totalNilai.total_sks,
             },
         };
     }
+
     formatMhsMengambilMatkulWithMakulAndDosenToMahasiswaSemester(
         raw: MhsMengambilMatkulWithMatkulAndDosen[],
-    ): MahasiswaSemester[] {
+    ): MahasiswaNilaiSemester[] {
         return raw.map((r) => {
             return {
                 kode_matkul: r.kode_matkul,
