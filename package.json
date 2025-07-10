@@ -32,6 +32,7 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "dayjs": "^1.11.13",
     "helmet": "^8.1.0",
     "nest-winston": "^1.10.2",
     "reflect-metadata": "^0.2.2",
@@ -72,19 +73,21 @@
       "json",
       "ts"
     ],
-    "rootDir": ".",                       
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "src/**/*.(t|j)s"                  
+      "src/**/*.(t|j)s"
     ],
     "coverageDirectory": "coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/src/$1"
     },
-    "modulePaths": ["<rootDir>"]
+    "modulePaths": [
+      "<rootDir>"
+    ]
   }
 }

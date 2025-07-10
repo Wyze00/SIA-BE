@@ -1,10 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import {
-    WINSTON_MODULE_NEST_PROVIDER,
-    WINSTON_MODULE_PROVIDER,
-} from 'nest-winston';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ConfigService } from '@nestjs/config';
 import { HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
@@ -49,10 +46,8 @@ async function bootstrap() {
         }),
     );
 
-    // Use Logger
-    const logger: Logger = app.get(WINSTON_MODULE_NEST_PROVIDER);
+    // Create Logger
     const loggerInstance: Logger = app.get(WINSTON_MODULE_PROVIDER);
-    app.useLogger(logger);
 
     // Use Filter
     app.useGlobalFilters(new ErrorFilter(loggerInstance));
@@ -77,7 +72,7 @@ async function bootstrap() {
 
     // Liten
     await app.listen(PORT, () => {
-        loggerInstance.info(`Application start at : http://${HOST}:${PORT}`);
+        loggerInstance.debug(`Application start at : http://${HOST}:${PORT}`);
     });
 }
 bootstrap();

@@ -46,11 +46,11 @@ export class PrismaService
         });
 
         this.$on('info', (msg: Prisma.LogEvent) => {
-            this.logger.info(msg);
+            this.logger.debug(msg);
         });
 
         this.$on('query', (msg: Prisma.QueryEvent) => {
-            this.logger.info(msg);
+            this.logger.debug(msg);
         });
 
         this.$on('warn', (msg: Prisma.LogEvent) => {
@@ -59,7 +59,7 @@ export class PrismaService
     }
 
     async onApplicationShutdown(signal: string) {
-        this.logger.info(`Shutdown App with signal : ${signal}`);
+        this.logger.debug(`Shutdown App with signal : ${signal}`);
         await this.$disconnect();
     }
 }
