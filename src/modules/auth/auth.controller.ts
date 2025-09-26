@@ -24,6 +24,7 @@ export class AuthController {
     @Post('/login')
     @HttpCode(HttpStatus.OK)
     async login(@Body() request: LoginUserRequest): Promise<LoginUserResponse> {
+        console.log('sampe');
         return await this.authService.login(request);
     }
 

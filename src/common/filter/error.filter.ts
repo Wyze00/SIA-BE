@@ -19,7 +19,6 @@ export class ErrorFilter implements ExceptionFilter {
     catch(exception: Error, host: ArgumentsHost) {
         const response: Response = host.switchToHttp().getResponse<Response>();
         const request: Request = host.switchToHttp().getRequest<Request>();
-
         this.logger.info(
             `[Request Error From] ${request.path} : ${exception.message}`,
         );
